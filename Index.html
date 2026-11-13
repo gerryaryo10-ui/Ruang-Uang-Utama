@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruang Uang Utama (RUU)</title>
+<style>
+:root{--green:#174b3b;--green2:#236b52;--mint:#e8f4ed;--bg:#f5f7f5;--ink:#17251f;--muted:#75827b;--line:#e5ebe6;--white:#fff;--red:#c65353;--amber:#a66b19;--shadow:0 8px 28px rgba(23,75,59,.07)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;transition:background .15s,border-color .15s,transform .1s,opacity .15s}
+button:active{transform:scale(.99)}
+
+/* AUTH SCREEN */
+.authwrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:radial-gradient(circle at top right,#e3f1e8 0%,var(--bg) 52%)}
+.authcard{width:100%;max-width:430px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 28px;box-shadow:var(--shadow)}
+.authbrand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.authsub{color:var(--muted);font-size:13px;margin:-10px 0 22px}
+.authtabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f5f2;padding:5px;border-radius:12px;margin-bottom:18px}
+.authtabs button{border:0;background:transparent;color:#66736c;padding:9px 12px;border-radius:9px;font-weight:700;font-size:12px}
+.authtabs button.active{background:#fff;color:var(--green);box-shadow:0 2px 7px #183c2512}
+.authdivider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#94a098;font-size:11px;font-weight:600}
+.authdivider:before,.authdivider:after{content:"";flex:1;height:1px;background:var(--line)}
+.googlebtn{width:100%;border:1px solid #dce5df;background:#fff;color:var(--ink);border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:10px}
+.googlebtn:hover{background:#f7faf8;border-color:#c6d5cc}
+.authfoot{margin-top:18px;text-align:center;font-size:11px;color:var(--muted)}
+
+/* MAIN LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:248px;background:#fff;border-right:1px solid var(--line);padding:22px 15px 18px;position:fixed;inset:0 auto 0 0;z-index:5;display:flex;flex-direction:column;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px 18px}
+.brandmark{width:38px;height:38px;border-radius:13px;background:var(--green);color:white;display:grid;place-items:center;font-weight:800;font-size:19px;flex-shrink:0}
+.brand b{font-size:17px;letter-spacing:-.4px}
+.brand small{display:block;color:var(--muted);font-size:11px}
+
+/* WORKSPACE SWITCHER */
+.wsbox{background:#f6faf7;border:1px solid #dfeae3;border-radius:14px;padding:10px;margin-bottom:16px}
+.wslabel{font-size:9px;font-weight:800;letter-spacing:1.1px;color:#829188;text-transform:uppercase;padding:0 4px 6px;display:flex;justify-content:space-between;align-items:center}
+.wslist{display:grid;gap:4px;max-height:165px;overflow-y:auto}
+.wsitem{width:100%;border:1px solid transparent;background:transparent;text-align:left;padding:8px 9px;border-radius:10px;display:flex;align-items:center;gap:9px;color:#4f5e56}
+.wsitem:hover{background:#ecf4ef}
+.wsitem.active{background:#fff;border-color:#cfe2d6;color:var(--green);box-shadow:0 2px 8px rgba(23,75,59,.06)}
+.wsico{width:28px;height:28px;border-radius:9px;background:var(--mint);color:var(--green);display:grid;place-items:center;font-size:13px;font-weight:800;flex-shrink:0}
+.wsitem.group .wsico{background:#edf2fa;color:#3d5c87}
+.wsmeta{min-width:0;flex:1}
+.wsmeta b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsmeta small{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsactions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #e4ede7}
+.wsbtn{border:1px solid #d5e3da;background:#fff;color:var(--green);border-radius:8px;padding:6px 7px;font-size:11px;font-weight:700;text-align:center}
+.wsbtn:hover{background:var(--mint)}
+
+.navlabel{font-size:10px;color:#9aa59e;font-weight:800;letter-spacing:1.3px;padding:6px 12px 8px}
+.nav{display:grid;gap:4px}
+.nav button{border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:11px;color:#66736c;display:flex;align-items:center;gap:12px;font-weight:600}
+.nav button:hover{background:#f6faf7;color:var(--ink)}
+.nav button .ico{width:22px;text-align:center;font-size:17px}
+.nav button.active{background:var(--mint);color:var(--green)}
+
+/* USER PROFILE FOOTER IN SIDEBAR */
+.sidefoot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.usercard{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;background:#f8faf8;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;transition:background .2s,border-color .2s}
+.usercard:hover{background:#edf4ef;border-color:#cfe2d6}
+.avatar{width:34px;height:34px;border-radius:11px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;flex-shrink:0}
+.userinfo{min-width:0;flex:1}
+.userinfo b{display:block;font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.userinfo small{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.syncpill{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#36734e;font-weight:700;margin-bottom:8px;padding:0 4px}
+.syncdot{width:7px;height:7px;border-radius:50%;background:#2ca063;display:inline-block}
+.logoutbtn{width:100%;border:1px solid #eed9d9;background:#fff6f6;color:var(--red);border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700}
+.logoutbtn:hover{background:#ffebeb}
+
+.main{margin-left:248px;width:calc(100% - 248px);padding:28px 34px 60px;max-width:1600px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.eyebrow{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.topbar h1{font-size:25px;margin:3px 0 0;letter-spacing:-.8px}
+.topbarright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.today{font-size:12px;color:var(--muted);background:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:10px}
+.mobilewsbtn{display:none;border:1px solid #cfe2d6;background:var(--mint);color:var(--green);padding:8px 11px;border-radius:10px;font-size:11px;font-weight:800;align-items:center;gap:6px}
+
+/* GROUP INFO BANNER */
+.groupbanner{background:#fff;border:1px solid #d5e5db;border-radius:16px;padding:15px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 4px 16px rgba(23,75,59,.04)}
+.groupbannerleft{display:flex;align-items:center;gap:12px;min-width:0}
+.groupbadgeico{width:42px;height:42px;border-radius:13px;background:#edf2fa;color:#3d5c87;display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.invitechip{display:inline-flex;align-items:center;gap:6px;background:#f2f7f4;border:1px dashed #9fc2ad;color:var(--green);padding:6px 11px;border-radius:9px;font-size:12px;font-weight:800;letter-spacing:.5px}
+.authorbadge{display:inline-block;padding:2px 7px;border-radius:6px;background:#f0f4f8;color:#4a6382;font-size:10px;font-weight:700;margin-left:5px}
+
+.page{display:none}
+.page.active{display:block}
+.hero{background:linear-gradient(115deg,#174b3b,#286c52);border-radius:19px;padding:25px 27px;color:#fff;box-shadow:var(--shadow);margin-bottom:19px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:240px;height:240px;border:1px solid rgba(255,255,255,.12);border-radius:50%;right:-70px;top:-100px;box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025)}
+.hero small{color:#c8e0d3}
+.hero h2{font-size:23px;margin:5px 0 18px;position:relative;z-index:1}
+.hero .total{font-size:29px;font-weight:800;letter-spacing:-1px;position:relative;z-index:1}
+.hero .sub{font-size:11px;color:#c8e0d3;margin-top:4px;position:relative;z-index:1}
+.grid{display:grid;gap:15px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 3px 14px rgba(20,50,35,.025);min-width:0}
+.cardhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.card h3{font-size:14px;margin:0}
+.muted{color:var(--muted)}
+.small{font-size:11px}
+.money{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-top:7px}
+.balance{display:flex;align-items:center;gap:12px}
+.bubble{width:38px;height:38px;border-radius:12px;background:var(--mint);display:grid;place-items:center;color:var(--green);font-size:17px;flex-shrink:0}
+.bubble.blue{background:#edf2fa;color:#49658e}
+.bubble.orange{background:#fbf2e6;color:#a66b19}
+.sectiontitle{font-size:17px;margin:24px 0 12px;letter-spacing:-.3px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;background:var(--green);color:#fff}
+.btn:hover{background:var(--green2)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.secondary{background:#edf4ef;color:var(--green)}
+.btn.secondary:hover{background:#dfeee4}
+.btn.ghost{background:#f4f6f4;color:#526159}
+.btn.ghost:hover{background:#e9edea}
+.btn.danger{background:#fff0f0;color:var(--red)}
+.btn.danger:hover{background:#ffe2e2}
+.btn.smallbtn{padding:7px 10px;font-size:12px}
+.tabs{display:flex;gap:7px;background:#f1f5f2;padding:5px;border-radius:12px;width:max-content;max-width:100%;margin-bottom:15px}
+.tabs button{border:0;background:transparent;color:#66736c;padding:8px 13px;border-radius:9px;font-weight:700;font-size:12px}
+.tabs button.active{background:#fff;color:var(--green);box-shadow:0 2px 7px #183c2510}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;font-weight:700;color:#59675f}
+.field input,.field select,.field textarea{width:100%;border:1px solid #dfe7e1;border-radius:9px;padding:10px 11px;background:#fff;color:var(--ink);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#6a9a80;box-shadow:0 0 0 3px #e8f4ed}
+.field textarea{min-height:72px;resize:vertical}
+.formactions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:540px}
+th{text-align:left;color:#8a968f;font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:10px 9px;border-bottom:1px solid var(--line)}
+td{padding:12px 9px;border-bottom:1px solid #f0f3f0;font-size:12px}
+tr:last-child td{border-bottom:0}
+.amountplus{color:#238253;font-weight:800}
+.amountminus{color:#bd5555;font-weight:800}
+.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#edf5ef;color:#36734e;font-size:10px;font-weight:800}
+.pill.warn{background:#fff4e3;color:#9c6b20}
+.pill.gray{background:#f0f2f0;color:#68746d}
+.pill.red{background:#fff0f0;color:#b54b4b}
+.pill.blue{background:#edf2fa;color:#3d5c87}
+.empty{text-align:center;padding:28px 10px;color:#94a098;font-size:12px}
+.empty span{font-size:25px;display:block;margin-bottom:7px}
+.stat{padding:15px;border-radius:13px;background:#f8faf8}
+.stat .value{font-size:19px;font-weight:800;margin-top:5px}
+.progress{height:7px;background:#edf1ed;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;background:#4e9870;border-radius:20px;transition:width .3s ease}
+.wishcard{border:1px solid var(--line);border-radius:13px;padding:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.wishcard+.wishcard{margin-top:9px}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin-top:13px}
+.day{border:1px solid #e5ebe6;background:#fff;border-radius:9px;min-height:45px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#637068;font-size:11px;gap:2px}
+.day.checked{background:#e7f4eb;border-color:#a8d1b5;color:#236b45}
+.day.checked b{font-size:14px}
+.day:disabled{opacity:.45;cursor:not-allowed}
+.dayhead{text-align:center;font-size:9px;color:#9aa49d;padding:3px}
+.planneritem{border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;align-items:center;cursor:pointer}
+.planneritem.selected{border-color:#7fae90;background:#f5faf6}
+.planneritem:hover{border-color:#a4c5ad}
+.plannerlayout{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.8fr);gap:15px}
+.metric{background:#f7faf7;border-radius:11px;padding:12px}
+.metric .num{font-weight:800;font-size:17px;margin-top:4px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.monthbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.monthbar select{padding:8px;border:1px solid var(--line);border-radius:9px;background:white}
+.notice{padding:11px 13px;background:#f0f6f1;border-radius:10px;color:#456b53;font-size:11px;margin-top:10px}
+.mobilebar{display:none}
+.hidden{display:none!important}
+.chartbars{display:flex;align-items:end;gap:8px;height:145px;padding:12px 4px 0;border-bottom:1px solid var(--line)}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:end}
+.bar{width:min(25px,70%);background:#7bb18d;border-radius:5px 5px 0 0;min-height:2px}
+.barlabel{font-size:9px;color:#89958d}
+.barvalue{font-size:9px;color:#6b786f}
+
+/* MODALS */
+.modalbackdrop{position:fixed;inset:0;background:rgba(23,37,31,.45);backdrop-filter:blur(2px);z-index:30;display:flex;align-items:center;justify-content:center;padding:16px}
+.modalbox{background:#fff;border:1px solid var(--line);border-radius:18px;width:100%;max-width:440px;padding:22px;box-shadow:0 20px 50px rgba(15,35,25,.2);max-height:88vh;overflow-y:auto}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modalhead h3{margin:0;font-size:16px}
+.closex{border:0;background:#f2f5f3;color:#5c6a62;width:30px;height:30px;border-radius:9px;font-weight:800}
+.memberrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.memberrow:last-child{border-bottom:0}
+
+/* LOADER & TOAST */
+.loadingscreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--green);font-weight:700}
+.spinner{width:32px;height:32px;border:3px solid #d5e6dc;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:22px;right:22px;background:#193f31;color:#fff;padding:12px 17px;border-radius:11px;box-shadow:var(--shadow);z-index:50;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;font-size:13px;max-width:340px}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:950px){
+ .sidebar{width:215px}
+ .main{margin-left:215px;width:calc(100% - 215px);padding:25px 22px}
+ .g4{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:680px){
+ .sidebar{display:none}
+ .main{margin:0;width:100%;padding:18px 15px 92px}
+ .topbar{margin-bottom:16px}
+ .topbar h1{font-size:21px}
+ .today{font-size:10px;padding:7px 9px}
+ .mobilewsbtn{display:inline-flex}
+ .g2,.g3{grid-template-columns:1fr 1fr}
+ .g4{grid-template-columns:1fr 1fr}
+ .hero{padding:20px}
+ .hero .total{font-size:25px}
+ .plannerlayout{grid-template-columns:1fr}
+ .formgrid{grid-template-columns:1fr}
+ .field.full{grid-column:auto}
+ .mobilebar{display:flex;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:10;justify-content:space-around;padding:7px 3px calc(7px + env(safe-area-inset-bottom))}
+ .mobilebar button{border:0;background:transparent;color:#7b877f;font-size:9px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 4px;min-width:0}
+ .mobilebar button span{font-size:17px}
+ .mobilebar button.active{color:var(--green);font-weight:800}
+ .calendar{gap:4px}
+ .day{min-height:39px;font-size:10px}
+ .card{padding:14px}
+ .money{font-size:19px}
+ .toast{bottom:78px;right:14px;left:14px;max-width:none}
+}
+</style>
+</head>
+<body>
+
+<!-- INITIAL LOADING STATE -->
+<div id="loadingView" class="loadingscreen">
+ <div class="spinner"></div>
+ <div>Memuat RuangUang...</div>
+</div>
+
+<!-- LOGIN / REGISTER VIEW -->
+<div id="authView" class="authwrap hidden">
+ <div class="authcard">
+  <div class="authbrand">
+   <div style="width: 46px; height: 46px; background: #174b3b; color: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; box-shadow: 0 4px 12px rgba(23, 75, 59, 0.2);">RUU</div>
+   <div><b style="font-size:20px;letter-spacing:-.5px">Ruang Uang Utama</b><small style="display:block;color:var(--muted);font-size:12px">Keuangan Pribadi & Bersama</small></div>
+  </div>
+  <p class="authsub">Kelola tabungan pribadi per email sekaligus atur keuangan bersama keluarga atau teman secara real-time.</p>
+
+  <div class="authtabs">
+   <button type="button" class="active" id="tabLoginBtn" onclick="switchAuthTab('login')">Masuk</button>
+   <button type="button" id="tabRegisterBtn" onclick="switchAuthTab('register')">Daftar Akun Baru</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <form id="loginForm">
+   <div class="field" style="margin-bottom:12px">
+    <label>Alamat Email</label>
+    <input type="email" name="email" placeholder="nama@email.com" required>
+   </div>
+   <div class="field" style="margin-bottom:16px">
+    <label>Kata Sandi</label>
+    <input type="password" name="password" placeholder="Masukkan kata sandi" required>
+   </div>
+   <button type="submit" class="btn" style="width:100%;padding:11px" id="loginSubmitBtn">Masuk ke RuangUang</button>
+  </form>
+
+  <!-- REGISTER FORM -->
+  <form id="registerForm" class="hidden">
+   <div class="field" style="margin-bottom:12px">
+    <label>Nama Lengkap</label>
+    <input type="text" name="name" placeholder="Contoh: Arya Pratama" required>
+   </div>
+   <div class="field" style="margin-bottom:12px">
+    <label>Alamat Email</label>
+    <input type="email" name="email" placeholder="nama@email.com" required>
+   </div>
+   <div class="field" style="margin-bottom:16px">
+    <label>Kata Sandi (minimal 6 karakter)</label>
+    <input type="password" name="password" minlength="6" placeholder="Buat kata sandi" required>
+   </div>
+   <button type="submit" class="btn" style="width:100%;padding:11px" id="registerSubmitBtn">Daftar & Mulai</button>
+  </form>
+
+  <div class="authdivider">atau masuk cepat</div>
+
+  <button type="button" class="googlebtn" id="googleSignInBtn" onclick="loginWithGoogle()">
+   <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+   </svg>
+   <span>Masuk dengan Google</span>
+  </button>
+
+  <div class="authfoot">Data pribadi terisolasi aman per akun email dan tersinkron real-time.</div>
+ </div>
+</div>
+
+<!-- MAIN APPLICATION VIEW -->
+<div class="app hidden" id="appView">
+<aside class="sidebar">
+ <div class="brand">
+  <div style="width: 42px; height: 42px; background: #174b3b; color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800;">RUU</div>
+  <div><b>RUU</b><small>Ruang Uang Utama</small></div>
+ </div>
+
+ <!-- WORKSPACE SWITCHER -->
+ <div class="wsbox">
+  <div class="wslabel"><span>RUANG KEUANGAN</span><span id="wsCountBadge">1 ruang</span></div>
+  <div class="wslist" id="wsList"></div>
+  <div class="wsactions">
+   <button type="button" class="wsbtn" onclick="openModal('createGroupModal')">＋ Buat Grup</button>
+   <button type="button" class="wsbtn" onclick="openModal('joinGroupModal')">🔑 Gabung</button>
+  </div>
+ </div>
+
+ <div class="navlabel">MENU UTAMA</div>
+ <nav class="nav" id="sideNav"></nav>
+
+ <div class="sidefoot">
+  <div class="syncpill"><span class="syncdot"></span><span id="syncLabel">Cloud Real-Time Aktif</span></div>
+  <div class="usercard" onclick="openProfileModal()" title="Klik untuk membuka Pengaturan Profil">
+   <div class="avatar" id="userAvatar">U</div>
+   <div class="userinfo">
+    <b id="userNameDisplay">Pengguna</b>
+    <small id="userEmailDisplay">email@contoh.com</small>
+   </div>
+  </div>
+  <button type="button" class="logoutbtn" onclick="handleLogout()">Keluar Akun</button>
+ </div>
+</aside>
+
+<main class="main">
+ <header class="topbar">
+  <div>
+   <div class="eyebrow" id="eyebrow">Ringkasan keuangan</div>
+   <h1 id="pageTitle">Dashboard</h1>
+  </div>
+  <div class="topbarright">
+   <button type="button" class="mobilewsbtn" onclick="openModal('mobileWorkspaceModal')">
+    <span id="mobileWsIcon">👤</span>
+    <span id="mobileWsName">Ruang Pribadi</span>
+    <span>▾</span>
+   </button>
+   <div class="today" id="today"></div>
+  </div>
+ </header>
+
+ <!-- GROUP INFO BANNER (SHOWN WHEN IN GROUP WORKSPACE) -->
+ <div id="groupBanner" class="groupbanner hidden">
+  <div class="groupbannerleft">
+   <div class="groupbadgeico">👥</div>
+   <div style="min-width:0">
+    <div class="row" style="gap:7px;flex-wrap:wrap">
+     <b style="font-size:15px" id="gbName">Grup Keluarga</b>
+     <span class="pill blue" id="gbRole">Anggota</span>
+    </div>
+    <div class="small muted" id="gbDesc" style="margin-top:2px">Keuangan bersama keluarga</div>
+   </div>
+  </div>
+  <div class="row" style="flex-wrap:wrap">
+   <div class="invitechip">
+    <span>Kode: <b id="gbCode">RU-0000</b></span>
+   </div>
+   <button type="button" class="btn secondary smallbtn" onclick="copyInviteCode()">📋 Salin Kode</button>
+   <button type="button" class="btn ghost smallbtn" onclick="openGroupMembersModal()">👥 Anggota (<span id="gbMemberCount">1</span>)</button>
+  </div>
+ </div>
+
+ <!-- PAGE 1: DASHBOARD -->
+ <section class="page active" id="page-dashboard">
+  <div class="hero">
+   <small id="heroLabel">TOTAL SALDO TERSIMPAN</small>
+   <div class="total" id="dashTotal">Rp0</div>
+   <div class="sub">Gabungan Tabungan Utama dan Dana Darurat</div>
+  </div>
+  <div class="grid g2">
+   <div class="card"><div class="balance"><div class="bubble">◈</div><div><div class="muted small">Tabungan Utama</div><div class="money" id="dashMain">Rp0</div></div></div></div>
+   <div class="card"><div class="balance"><div class="bubble blue">♧</div><div><div class="muted small">Dana Darurat</div><div class="money" id="dashEmergency">Rp0</div></div></div></div>
+  </div>
+  <h3 class="sectiontitle">Ringkasan bulan ini</h3>
+  <div class="grid g3">
+   <div class="card"><div class="muted small">Pemasukan tabungan</div><div class="money amountplus" id="dashIn">Rp0</div></div>
+   <div class="card"><div class="muted small">Pengeluaran tabungan</div><div class="money amountminus" id="dashOut">Rp0</div></div>
+   <div class="card"><div class="muted small">Pengeluaran jajan</div><div class="money" id="dashFree">Rp0</div></div>
+  </div>
+  <h3 class="sectiontitle">Aktivitas terbaru</h3>
+  <div class="card" id="recentActivity"></div>
+  <div class="grid g2" style="margin-top:15px">
+   <div class="card"><div class="cardhead"><h3>Wishlist aktif</h3><button class="btn secondary smallbtn" onclick="navigate('wishlist')">Lihat semua</button></div><div id="dashWishlist"></div></div>
+   <div class="card"><div class="cardhead"><h3>Tagihan bulan ini</h3><button class="btn secondary smallbtn" onclick="navigate('monthly')">Lihat semua</button></div><div id="dashBills"></div></div>
+  </div>
+ </section>
+
+ <!-- PAGE 2: TABUNGAN -->
+ <section class="page" id="page-savings">
+  <div class="tabs"><button class="active" data-tab="save-in">Pemasukan</button><button data-tab="save-out">Pengeluaran</button><button data-tab="save-history">Riwayat</button></div>
+  <div id="save-in" class="tabpane">
+   <div class="card"><div class="cardhead"><h3>Catat uang yang ditabung</h3><span class="pill">Tambah saldo</span></div>
+    <form id="incomeForm"><div class="formgrid">
+     <div class="field"><label>Jenis tabungan</label><select name="kind"><option value="utama">Tabungan Utama</option><option value="darurat">Dana Darurat</option></select></div>
+     <div class="field"><label>Tanggal</label><input type="date" name="date" required></div>
+     <div class="field full"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" placeholder="Contoh: 100000" required></div>
+    </div><div class="formactions"><button class="btn">＋ Tabung</button></div></form>
+   </div>
+  </div>
+  <div id="save-out" class="tabpane hidden">
+   <div class="card"><div class="cardhead"><h3>Catat pengeluaran tabungan</h3><span class="pill red">Kurangi saldo</span></div>
+    <form id="expenseForm"><div class="formgrid">
+     <div class="field"><label>Jenis tabungan</label><select name="kind"><option value="utama">Tabungan Utama</option><option value="darurat">Dana Darurat</option></select></div>
+     <div class="field"><label>Tanggal</label><input type="date" name="date" required></div>
+     <div class="field full"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" placeholder="Contoh: 50000" required></div>
+     <div class="field full"><label>Kegunaan</label><input name="note" placeholder="Contoh: Bayar kebutuhan rumah" required></div>
+    </div><div class="formactions"><button class="btn">− Keluarkan</button></div></form>
+   </div>
+  </div>
+  <div id="save-history" class="tabpane hidden">
+   <div class="card"><div class="cardhead"><h3>Riwayat pemasukan & pengeluaran</h3><select id="historyFilter" style="padding:8px;border:1px solid var(--line);border-radius:8px"><option value="all">Semua</option><option value="in">Pemasukan</option><option value="out">Pengeluaran</option></select></div><div id="savingsHistory"></div></div>
+  </div>
+ </section>
+
+ <!-- PAGE 3: WISHLIST -->
+ <section class="page" id="page-wishlist">
+  <div class="card"><div class="cardhead"><h3>Tambah barang impian</h3><span class="pill">Wishlist</span></div>
+   <form id="wishForm"><div class="formgrid">
+    <div class="field"><label>Nama barang</label><input name="name" placeholder="Contoh: PlayStation 5" required></div>
+    <div class="field"><label>Harga barang (Rp)</label><input type="number" name="price" min="1" placeholder="4000000" required></div>
+    <div class="field"><label>Periode menabung</label><select name="months"><option value="1">1 bulan</option><option value="2">2 bulan</option><option value="3">3 bulan</option><option value="4">4 bulan</option><option value="5">5 bulan</option><option value="6">6 bulan</option><option value="9">9 bulan</option><option value="12">12 bulan</option></select></div>
+   </div><div class="formactions"><button class="btn">＋ Tambah Wishlist</button></div></form>
+   <div class="notice">Perhitungan menggunakan 31 hari per bulan. Nominal per hari dibulatkan ke atas ke kelipatan Rp500.</div>
+  </div>
+  <h3 class="sectiontitle">Daftar wishlist</h3><div id="wishList"></div>
+ </section>
+
+ <!-- PAGE 4: PERENCANAAN TABUNGAN -->
+ <section class="page" id="page-planner">
+  <div class="card"><div class="cardhead"><h3>Urutan prioritas tabungan</h3><span class="pill">Otomatis · harga termurah</span></div><p class="muted small" style="margin:0">Target yang belum terbeli diurutkan dari harga paling murah. Selesaikan target aktif untuk melanjutkan ke barang berikutnya.</p><div id="priorityList" style="margin-top:12px"></div></div>
+  <h3 class="sectiontitle">Perencanaan tabungan</h3>
+  <div class="plannerlayout"><div class="card"><div class="cardhead"><h3>Daftar target</h3><span class="muted small" id="planCount">0 target</span></div><div id="planList"></div><div class="notice">Target dibuat otomatis dari Wishlist. Pilih salah satu untuk melihat kalender menabung.</div></div>
+   <div class="card" id="planDetail"><div class="empty"><span>▦</span>Pilih target tabungan untuk mulai mencatat progres.</div></div>
+  </div>
+ </section>
+
+ <!-- PAGE 5: PENGELUARAN BULANAN -->
+ <section class="page" id="page-monthly">
+  <div class="card"><div class="cardhead"><h3>Catat pengeluaran bulanan</h3><span class="pill warn">Tagihan & estimasi</span></div>
+   <form id="billForm"><div class="formgrid">
+    <div class="field"><label>Nama pengeluaran / tagihan</label><input name="name" placeholder="Contoh: WiFi, listrik, cicilan HP" required></div>
+    <div class="field"><label>Nominal estimasi (Rp)</label><input name="amount" type="number" min="1" placeholder="350000" required></div>
+    <div class="field"><label>Periode</label><select name="frequency"><option value="monthly">Setiap bulan</option><option value="once">Sekali saja</option></select></div>
+    <div class="field"><label>Tanggal jatuh tempo (opsional)</label><input name="due" type="number" min="1" max="31" placeholder="Contoh: 10"></div>
+   </div><div class="formactions"><button class="btn">＋ Simpan pengeluaran</button></div></form>
+  </div>
+  <div class="grid g3" style="margin-top:15px">
+   <div class="card"><div class="muted small">Estimasi rutin per bulan</div><div class="money" id="billEstimate">Rp0</div></div>
+   <div class="card"><div class="muted small">Tagihan sudah dibayar bulan ini</div><div class="money amountplus" id="billPaid">Rp0</div></div>
+   <div class="card"><div class="muted small">Sisa estimasi</div><div class="money" id="billRemain">Rp0</div></div>
+  </div>
+  <h3 class="sectiontitle">Daftar pengeluaran</h3><div class="card"><div id="billList"></div></div>
+ </section>
+
+ <!-- PAGE 6: UANG BEBAS / JAJAN -->
+ <section class="page" id="page-free">
+  <div class="grid g2">
+   <div class="card"><div class="muted small">Sisa uang bebas bulan ini</div><div class="money" id="freeBalance">Rp0</div><div class="small muted">Pemasukan uang bebas dikurangi pengeluaran</div></div>
+   <div class="card"><div class="muted small">Total jajan bulan ini</div><div class="money amountminus" id="freeSpent">Rp0</div><div class="small muted">Akumulasi pengeluaran uang bebas</div></div>
+  </div>
+  <div class="card" style="margin-top:15px"><div class="cardhead"><h3>Catat uang bebas</h3><span class="pill">Pemasukan / Pengeluaran</span></div>
+   <div class="tabs"><button class="active" data-tab="free-in">Pemasukan</button><button data-tab="free-out">Pengeluaran</button></div>
+   <div id="free-in" class="tabpane"><form id="freeIncomeForm"><div class="formgrid"><div class="field"><label>Tanggal</label><input type="date" name="date" required></div><div class="field"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" required placeholder="100000"></div><div class="field full"><label>Sumber uang</label><input name="note" placeholder="Contoh: Uang mingguan / bonus" required></div></div><div class="formactions"><button class="btn">＋ Tambah pemasukan</button></div></form></div>
+   <div id="free-out" class="tabpane hidden"><form id="freeExpenseForm"><div class="formgrid"><div class="field"><label>Tanggal</label><input type="date" name="date" required></div><div class="field"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" required placeholder="25000"></div><div class="field full"><label>Keperluan / jajan</label><input name="note" placeholder="Contoh: Kopi dan makan siang" required></div></div><div class="formactions"><button class="btn">− Catat pengeluaran</button></div></form></div>
+  </div>
+  <h3 class="sectiontitle">Riwayat uang bebas</h3><div class="card"><div id="freeHistory"></div></div>
+ </section>
+
+ <!-- PAGE 7: LAPORAN KEUANGAN -->
+ <section class="page" id="page-reports">
+  <div class="row between" style="margin-bottom:14px;flex-wrap:wrap"><div><h3 style="margin:0">Laporan keuangan</h3><div class="muted small">Ringkasan berdasarkan bulan yang dipilih</div></div><div class="monthbar"><select id="reportMonth"></select><select id="reportYear"></select></div></div>
+  <div class="grid g4">
+   <div class="card"><div class="muted small">Saldo Tabungan Utama</div><div class="money" id="repMain">Rp0</div></div>
+   <div class="card"><div class="muted small">Saldo Dana Darurat</div><div class="money" id="repEmergency">Rp0</div></div>
+   <div class="card"><div class="muted small">Pemasukan tabungan</div><div class="money amountplus" id="repIn">Rp0</div></div>
+   <div class="card"><div class="muted small">Pengeluaran tabungan</div><div class="money amountminus" id="repOut">Rp0</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:15px">
+   <div class="card"><h3>Arus kas tabungan</h3><div id="reportChart"></div></div>
+   <div class="card"><h3>Rincian pengeluaran</h3><div id="reportBreakdown" style="margin-top:12px"></div></div>
+  </div>
+  <h3 class="sectiontitle">Ringkasan uang bebas</h3><div class="grid g3">
+   <div class="card"><div class="muted small">Pemasukan uang bebas</div><div class="money amountplus" id="repFreeIn">Rp0</div></div>
+   <div class="card"><div class="muted small">Pengeluaran / jajan</div><div class="money amountminus" id="repFreeOut">Rp0</div></div>
+   <div class="card"><div class="muted small">Tagihan dibayar (dicentang)</div><div class="money" id="repBills">Rp0</div></div>
+  </div>
+ </section>
+</main>
+</div>
+<nav class="mobilebar" id="mobileNav"></nav>
+
+<!-- MODAL: BUAT GRUP BARU -->
+<div id="createGroupModal" class="modalbackdrop hidden" onclick="if(event.target===this)closeModal('createGroupModal')">
+ <div class="modalbox">
+  <div class="modalhead"><h3>Buat Grup Keuangan Bersama</h3><button type="button" class="closex" onclick="closeModal('createGroupModal')">✕</button></div>
+  <p class="muted small" style="margin-top:0">Buat ruang keuangan bersama keluarga, pasangan, atau teman untuk memantau tabungan dan tagihan secara real-time.</p>
+  <form id="createGroupForm">
+   <div class="field" style="margin-bottom:12px">
+    <label>Nama Grup</label>
+    <input name="name" placeholder="Contoh: Keuangan Keluarga / Patungan Liburan" required>
+   </div>
+   <div class="field" style="margin-bottom:14px">
+    <label>Deskripsi Singkat (opsional)</label>
+    <textarea name="description" placeholder="Contoh: Tabungan rumah tangga dan tagihan bulanan bersama"></textarea>
+   </div>
+   <div class="formactions">
+    <button type="submit" class="btn" id="createGroupSubmitBtn">＋ Buat Grup & Kode Undangan</button>
+    <button type="button" class="btn ghost" onclick="closeModal('createGroupModal')">Batal</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<!-- MODAL: GABUNG GRUP -->
+<div id="joinGroupModal" class="modalbackdrop hidden" onclick="if(event.target===this)closeModal('joinGroupModal')">
+ <div class="modalbox">
+  <div class="modalhead"><h3>Gabung Grup Keuangan</h3><button type="button" class="closex" onclick="closeModal('joinGroupModal')">✕</button></div>
+  <p class="muted small" style="margin-top:0">Masukkan Kode Undangan 6 digit (contoh: <b>RU-7X92</b>) yang dibagikan oleh pembuat grup.</p>
+  <form id="joinGroupForm">
+   <div class="field" style="margin-bottom:14px">
+    <label>Kode Undangan Grup</label>
+    <input name="inviteCode" placeholder="RU-XXXX" style="text-transform:uppercase;font-weight:800;letter-spacing:1px" required>
+   </div>
+   <div class="formactions">
+    <button type="submit" class="btn" id="joinGroupSubmitBtn">🔑 Gabung ke Grup</button>
+    <button type="button" class="btn ghost" onclick="closeModal('joinGroupModal')">Batal</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<!-- MODAL: INFO & ANGGOTA GRUP -->
+<div id="groupMembersModal" class="modalbackdrop hidden" onclick="if(event.target===this)closeModal('groupMembersModal')">
+ <div class="modalbox">
+  <div class="modalhead"><h3 id="gmTitle">Info & Anggota Grup</h3><button type="button" class="closex" onclick="closeModal('groupMembersModal')">✕</button></div>
+  <div style="background:#f5faf7;border:1px solid #d7e7dd;border-radius:12px;padding:12px;margin-bottom:14px">
+   <div class="small muted">Kode Undangan Grup</div>
+   <div class="row between" style="margin-top:4px">
+    <b style="font-size:18px;letter-spacing:1px;color:var(--green)" id="gmCode">RU-0000</b>
+    <button type="button" class="btn secondary smallbtn" onclick="copyInviteCode()">📋 Salin Kode</button>
+   </div>
+  </div>
+  <div class="small" style="font-weight:800;color:var(--muted);margin-bottom:6px">DAFTAR ANGGOTA</div>
+  <div id="gmMemberList"></div>
+  <div class="formactions" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line)" id="gmActions"></div>
+ </div>
+</div>
+
+<!-- MODAL: WORKSPACE & AKUN MOBILE -->
+<div id="mobileWorkspaceModal" class="modalbackdrop hidden" onclick="if(event.target===this)closeModal('mobileWorkspaceModal')">
+ <div class="modalbox">
+  <div class="modalhead"><h3>Pilih Ruang Keuangan</h3><button type="button" class="closex" onclick="closeModal('mobileWorkspaceModal')">✕</button></div>
+  <div class="wslist" id="mobileWsList" style="max-height:240px;margin-bottom:12px"></div>
+  <div class="wsactions" style="margin-bottom:16px">
+   <button type="button" class="wsbtn" onclick="closeModal('mobileWorkspaceModal');openModal('createGroupModal')">＋ Buat Grup Baru</button>
+   <button type="button" class="wsbtn" onclick="closeModal('mobileWorkspaceModal');openModal('joinGroupModal')">🔑 Gabung Grup</button>
+  </div>
+  <div class="usercard" onclick="closeModal('mobileWorkspaceModal');openProfileModal()">
+   <div class="avatar" id="mobUserAvatar">U</div>
+   <div class="userinfo">
+    <b id="mobUserName">Pengguna</b>
+    <small id="mobUserEmail">email@contoh.com</small>
+   </div>
+  </div>
+  <button type="button" class="logoutbtn" onclick="closeModal('mobileWorkspaceModal');handleLogout()">Keluar Akun</button>
+ </div>
+</div>
+
+<!-- MODAL: PROFIL & PENGATURAN -->
+<div id="profileSettingsModal" class="modalbackdrop hidden" onclick="if(event.target===this)closeModal('profileSettingsModal')">
+ <div class="modalbox">
+  <div class="modalhead"><h3>Pengaturan Profil</h3><button type="button" class="closex" onclick="closeModal('profileSettingsModal')">✕</button></div>
+  <form id="profileSettingsForm">
+   <div class="field" style="margin-bottom:12px">
+    <label>Nama Lengkap / Username</label>
+    <input type="text" name="name" id="profileNameInput" required>
+   </div>
+   <div id="emailPassSection">
+    <div class="field" style="margin-bottom:12px">
+     <label>Alamat Email</label>
+     <input type="email" name="email" id="profileEmailInput" required>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+     <label>Kata Sandi Baru (Opsional)</label>
+     <input type="password" name="newPassword" id="profileNewPasswordInput" placeholder="Kosongkan jika tidak mengubah sandi" minlength="6">
+    </div>
+    <div class="field" style="margin-bottom:16px; padding:12px; background:#fff4e3; border-radius:9px; border:1px solid #f2dfc4">
+     <label style="color:#a66b19; margin-bottom:5px; display:block">Kata Sandi Saat Ini (Wajib diisi jika mengubah email/sandi)</label>
+     <input type="password" name="currentPassword" id="profileCurrentPasswordInput" placeholder="Ketik sandi lama Anda di sini">
+    </div>
+   </div>
+   <div id="googleAuthNotice" class="notice hidden" style="margin-bottom:16px">
+    Akun Anda terhubung menggunakan Google. Email dan kata sandi dikelola secara otomatis oleh sistem Google.
+   </div>
+   <div class="formactions">
+    <button type="submit" class="btn" id="profileSubmitBtn">Simpan Perubahan</button>
+    <button type="button" class="btn ghost" onclick="closeModal('profileSettingsModal')">Batal</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<!-- MODAL: KONFIRMASI KUSTOM -->
+<div id="confirmModal" class="modalbackdrop hidden" onclick="if(event.target===this)closeConfirm(false)">
+ <div class="modalbox" style="max-width:380px">
+  <div class="modalhead"><h3 id="confirmTitle">Konfirmasi</h3><button type="button" class="closex" onclick="closeConfirm(false)">✕</button></div>
+  <p id="confirmMessage" class="muted" style="font-size:13px;margin:0 0 18px">Apakah Anda yakin ingin melanjutkan?</p>
+  <div class="formactions" style="justify-content:flex-end">
+   <button type="button" class="btn ghost" onclick="closeConfirm(false)">Batal</button>
+   <button type="button" class="btn danger" id="confirmYesBtn" onclick="closeConfirm(true)">Ya, Lanjutkan</button>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import {
+ getAuth,
+ onAuthStateChanged,
+ signInWithEmailAndPassword,
+ createUserWithEmailAndPassword,
+ updateProfile,
+ GoogleAuthProvider,
+ signInWithPopup,
+ signOut,
+ updateEmail,
+ updatePassword,
+ EmailAuthProvider,
+ reauthenticateWithCredential
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import {
+ getFirestore,
+ doc,
+ getDoc,
+ setDoc,
+ updateDoc,
+ deleteDoc,
+ onSnapshot,
+ collection,
+ getDocs
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// --- FIREBASE INITIALIZATION ---
+const firebaseConfig = {
+  apiKey: "AIzaSyBd5GuUX0nc9VydPwGA6Ca93pKtN8_PC4M",
+  authDomain: "keuanganku-84f65.firebaseapp.com",
+  projectId: "keuanganku-84f65",
+  storageBucket: "keuanganku-84f65.firebasestorage.app",
+  messagingSenderId: "1029438527766",
+  appId: "1:1029438527766:web:641e6aefbb1a67b23d1837"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const fs = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+// FIX: Variabel ini sebelumnya HILANG dan menyebabkan semua fitur database/Grup error diam-diam!
+const appId = firebaseConfig.appId; 
+
+// --- HELPERS & CONSTANTS ---
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const menus = [
+ ['dashboard','⌂','Dashboard'],
+ ['savings','⇄','Tabungan'],
+ ['wishlist','♡','Wishlist'],
+ ['planner','▦','Perencanaan'],
+ ['monthly','▤','Pengeluaran Bulanan'],
+ ['free','◉','Uang Bebas'],
+ ['reports','▥','Laporan']
+];
+const titles = {
+ dashboard:'Dashboard',
+ savings:'Tabungan',
+ wishlist:'Wishlist',
+ planner:'Perencanaan Tabungan',
+ monthly:'Pengeluaran Bulanan',
+ free:'Uang Bebas / Jajan',
+ reports:'Laporan Keuangan'
+};
+const todayISO = () => {
+ let d = new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const money = n => 'Rp' + Math.round(Number(n)||0).toLocaleString('id-ID');
+const fmtDate = s => s ? new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '-';
+const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const monthKey = d => (d||todayISO()).slice(0,7);
+const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const ceil500 = n => Math.ceil(n/500)*500;
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const formData = form => Object.fromEntries(new FormData(form).entries());
+const blankData = () => ({transactions:[],wishlist:[],plans:[],bills:[],free:[],billPaid:[]});
+
+// --- APPLICATION STATE ---
+let currentUser = null;
+let userProfile = null;
+let userGroups = []; 
+let activeWorkspace = { type: 'personal', id: 'personal' }; 
+let activeGroupDoc = null;
+let db = blankData();
+let selectedPlan = null;
+
+let unsubProfile = null;
+let unsubWorkspace = null;
+let groupMetaListeners = {};
+
+// --- TOAST & CUSTOM CONFIRM MODAL ---
+function toast(msg) {
+ const x = $('#toast');
+ x.textContent = msg;
+ x.classList.add('show');
+ clearTimeout(x._timer);
+ x._timer = setTimeout(() => x.classList.remove('show'), 2800);
+}
+
+let confirmResolver = null;
+function askConfirm(title, message, yesText = 'Ya, Hapus') {
+ $('#confirmTitle').textContent = title;
+ $('#confirmMessage').textContent = message;
+ $('#confirmYesBtn').textContent = yesText;
+ $('#confirmModal').classList.remove('hidden');
+ return new Promise(resolve => { confirmResolver = resolve; });
+}
+window.closeConfirm = function(result) {
+ $('#confirmModal').classList.add('hidden');
+ if (confirmResolver) {
+  confirmResolver(result);
+  confirmResolver = null;
+ }
+};
+
+window.openModal = function(id) {
+ const el = document.getElementById(id);
+ if (el) el.classList.remove('hidden');
+};
+window.closeModal = function(id) {
+ const el = document.getElementById(id);
+ if (el) el.classList.add('hidden');
+};
+
+// --- AUTHENTICATION UI & HANDLERS ---
+window.switchAuthTab = function(tab) {
+ const isLogin = tab === 'login';
+ $('#tabLoginBtn').classList.toggle('active', isLogin);
+ $('#tabRegisterBtn').classList.toggle('active', !isLogin);
+ $('#loginForm').classList.toggle('hidden', !isLogin);
+ $('#registerForm').classList.toggle('hidden', isLogin);
+};
+
+function friendlyAuthError(err) {
+ const code = err?.code || '';
+ if (code === 'auth/email-already-in-use') return 'Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.';
+ if (code === 'auth/invalid-email') return 'Format alamat email tidak valid.';
+ if (code === 'auth/weak-password') return 'Kata sandi terlalu lemah. Gunakan minimal 6 karakter.';
+ if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return 'Email atau kata sandi salah. Periksa kembali data Anda.';
+ if (code === 'auth/too-many-requests') return 'Terlalu banyak percobaan gagal. Coba beberapa saat lagi.';
+ if (code === 'auth/popup-closed-by-user') return 'Login Google dibatalkan.';
+ return err?.message || 'Terjadi kendala autentikasi. Silakan coba lagi.';
+}
+
+$('#loginForm').addEventListener('submit', async e => {
+ e.preventDefault();
+ const d = formData(e.target);
+ const btn = $('#loginSubmitBtn');
+ btn.disabled = true;
+ btn.textContent = 'Memproses...';
+ try {
+  await signInWithEmailAndPassword(auth, d.email.trim(), d.password);
+  toast('Berhasil masuk ke RuangUang!');
+ } catch (err) {
+  toast(friendlyAuthError(err));
+ } finally {
+  btn.disabled = false;
+  btn.textContent = 'Masuk ke RuangUang';
+ }
+});
+
+$('#registerForm').addEventListener('submit', async e => {
+ e.preventDefault();
+ const d = formData(e.target);
+ const btn = $('#registerSubmitBtn');
+ btn.disabled = true;
+ btn.textContent = 'Mendaftarkan...';
+ try {
+  const cred = await createUserWithEmailAndPassword(auth, d.email.trim(), d.password);
+  await updateProfile(cred.user, { displayName: d.name.trim() });
+  await ensureUserProfile(cred.user, d.name.trim());
+  toast('Akun berhasil dibuat! Selamat datang di RuangUang.');
+ } catch (err) {
+  toast(friendlyAuthError(err));
+ } finally {
+  btn.disabled = false;
+  btn.textContent = 'Daftar & Mulai';
+ }
+});
+
+window.loginWithGoogle = async function() {
+ const btn = $('#googleSignInBtn');
+ btn.disabled = true;
+ try {
+  const res = await signInWithPopup(auth, googleProvider);
+  await ensureUserProfile(res.user);
+  toast('Berhasil masuk dengan Google!');
+ } catch (err) {
+  toast(friendlyAuthError(err));
+ } finally {
+  btn.disabled = false;
+ }
+};
+
+window.handleLogout = async function() {
+ try {
+  cleanupListeners();
+  await signOut(auth);
+  toast('Anda telah keluar dari akun.');
+ } catch (err) {
+  toast('Gagal keluar akun.');
+ }
+};
+
+// --- FIRESTORE PATHS (STRICT COMPLIANCE) ---
+const personalDocRef = uid => doc(fs, 'artifacts', appId, 'users', uid, 'workspaces', 'personal');
+const profileDocRef = uid => doc(fs, 'artifacts', appId, 'users', uid, 'profile', 'info');
+const groupDocRef = gid => doc(fs, 'artifacts', appId, 'public', 'data', 'groups', gid);
+const groupsColRef = () => collection(fs, 'artifacts', appId, 'public', 'data', 'groups');
+
+function cleanupListeners() {
+ if (unsubProfile) { unsubProfile(); unsubProfile = null; }
+ if (unsubWorkspace) { unsubWorkspace(); unsubWorkspace = null; }
+ Object.values(groupMetaListeners).forEach(fn => fn());
+ groupMetaListeners = {};
+}
+
+async function ensureUserProfile(user, explicitName = null) {
+ const pRef = profileDocRef(user.uid);
+ const snap = await getDoc(pRef);
+ const displayName = explicitName || user.displayName || (user.email ? user.email.split('@')[0] : 'Pengguna');
+ if (!snap.exists()) {
+  const newProf = {
+   uid: user.uid,
+   name: displayName,
+   email: user.email || '',
+   groupIds: [],
+   createdAt: Date.now()
+  };
+  await setDoc(pRef, newProf);
+  const wRef = personalDocRef(user.uid);
+  const wSnap = await getDoc(wRef);
+  if (!wSnap.exists()) {
+   await setDoc(wRef, { ...blankData(), updatedAt: Date.now() });
+  }
+  return newProf;
+ } else {
+  const data = snap.data();
+  if (explicitName && data.name !== explicitName) {
+   await updateDoc(pRef, { name: explicitName });
+   data.name = explicitName;
+  }
+  return data;
+ }
+}
+
+onAuthStateChanged(auth, async user => {
+ $('#loadingView').classList.add('hidden');
+ cleanupListeners();
+
+ if (!user) {
+  currentUser = null;
+  userProfile = null;
+  userGroups = [];
+  activeWorkspace = { type: 'personal', id: 'personal' };
+  activeGroupDoc = null;
+  db = blankData();
+  $('#appView').classList.add('hidden');
+  $('#mobileNav').classList.add('hidden');
+  $('#authView').classList.remove('hidden');
+  return;
+ }
+
+ currentUser = user;
+ $('#authView').classList.add('hidden');
+ $('#appView').classList.remove('hidden');
+ $('#mobileNav').classList.remove('hidden');
+
+ try {
+  userProfile = await ensureUserProfile(user);
+ } catch (e) {
+  userProfile = {
+   uid: user.uid,
+   name: user.displayName || (user.email ? user.email.split('@')[0] : 'Pengguna'),
+   email: user.email || '',
+   groupIds: []
+  };
+ }
+
+ renderUserUI();
+ subscribeToUserProfile(user.uid);
+ switchWorkspace('personal', 'personal');
+});
+
+function renderUserUI() {
+ if (!currentUser) return;
+ const name = userProfile?.name || currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Pengguna');
+ const email = currentUser.email || '';
+ const initials = name.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase() || 'U';
+
+ $('#userAvatar').textContent = initials;
+ $('#userNameDisplay').textContent = name;
+ $('#userEmailDisplay').textContent = email;
+ $('#mobUserAvatar').textContent = initials;
+ $('#mobUserName').textContent = name;
+ $('#mobUserEmail').textContent = email;
+}
+
+function subscribeToUserProfile(uid) {
+ if (unsubProfile) unsubProfile();
+ unsubProfile = onSnapshot(profileDocRef(uid), snap => {
+  if (!snap.exists()) return;
+  userProfile = snap.data();
+  renderUserUI();
+  syncUserGroupMetadata(userProfile.groupIds || []);
+ }, err => {
+  console.error('Profile listener error:', err);
+ });
+}
+
+function syncUserGroupMetadata(groupIds) {
+ const validIds = [...new Set(groupIds || [])];
+ Object.keys(groupMetaListeners).forEach(gid => {
+  if (!validIds.includes(gid)) {
+   groupMetaListeners[gid]();
+   delete groupMetaListeners[gid];
+   userGroups = userGroups.filter(g => g.id !== gid);
+  }
+ });
+
+ if (validIds.length === 0) {
+  userGroups = [];
+  renderWorkspaceSwitcher();
+  return;
+ }
+
+ validIds.forEach(gid => {
+  if (groupMetaListeners[gid]) return;
+  groupMetaListeners[gid] = onSnapshot(groupDocRef(gid), snap => {
+   if (!snap.exists()) {
+    userGroups = userGroups.filter(g => g.id !== gid);
+    if (activeWorkspace.type === 'group' && activeWorkspace.id === gid) {
+     toast('Grup ini telah dihapus oleh admin.');
+     switchWorkspace('personal', 'personal');
+    }
+    renderWorkspaceSwitcher();
+    return;
+   }
+   const gData = { id: snap.id, ...snap.data() };
+   if (currentUser && Array.isArray(gData.memberIds) && !gData.memberIds.includes(currentUser.uid)) {
+    userGroups = userGroups.filter(g => g.id !== gid);
+    if (activeWorkspace.type === 'group' && activeWorkspace.id === gid) {
+     switchWorkspace('personal', 'personal');
+    }
+    renderWorkspaceSwitcher();
+    return;
+   }
+   const idx = userGroups.findIndex(g => g.id === gid);
+   if (idx >= 0) userGroups[idx] = gData;
+   else userGroups.push(gData);
+   renderWorkspaceSwitcher();
+   if (activeWorkspace.type === 'group' && activeWorkspace.id === gid) {
+    activeGroupDoc = gData;
+    renderGroupBanner();
+   }
+  });
+ });
+ renderWorkspaceSwitcher();
+}
+
+function renderWorkspaceSwitcher() {
+ const email = currentUser?.email || 'Pribadi';
+ const totalSpaces = 1 + userGroups.length;
+ $('#wsCountBadge').textContent = `${totalSpaces} ruang`;
+
+ const isPersonal = activeWorkspace.type === 'personal';
+ let html = `
+  <button type="button" class="wsitem ${isPersonal ? 'active' : ''}" onclick="switchWorkspace('personal','personal')">
+   <div class="wsico">👤</div>
+   <div class="wsmeta">
+    <b>Ruang Pribadi</b>
+    <small>${esc(email)}</small>
+   </div>
+  </button>
+ `;
+
+ userGroups.forEach(g => {
+  const isAct = activeWorkspace.type === 'group' && activeWorkspace.id === g.id;
+  html += `
+   <button type="button" class="wsitem group ${isAct ? 'active' : ''}" onclick="switchWorkspace('group','${esc(g.id)}')">
+    <div class="wsico">👥</div>
+    <div class="wsmeta">
+     <b>${esc(g.name)}</b>
+     <small>${esc(g.inviteCode)} · ${(g.members||[]).length} anggota</small>
+    </div>
+   </button>
+  `;
+ });
+
+ $('#wsList').innerHTML = html;
+ $('#mobileWsList').innerHTML = html;
+
+ if (isPersonal) {
+  $('#mobileWsIcon').textContent = '👤';
+  $('#mobileWsName').textContent = 'Ruang Pribadi';
+ } else {
+  const grp = userGroups.find(g => g.id === activeWorkspace.id);
+  $('#mobileWsIcon').textContent = '👥';
+  $('#mobileWsName').textContent = grp ? grp.name : 'Grup Bersama';
+ }
+}
+
+window.switchWorkspace = function(type, id) {
+ if (!currentUser) return;
+ activeWorkspace = { type, id };
+ selectedPlan = null;
+ renderWorkspaceSwitcher();
+ closeModal('mobileWorkspaceModal');
+
+ if (unsubWorkspace) {
+  unsubWorkspace();
+  unsubWorkspace = null;
+ }
+
+ if (type === 'personal') {
+  activeGroupDoc = null;
+  $('#groupBanner').classList.add('hidden');
+  $('#heroLabel').textContent = 'TOTAL SALDO TERSIMPAN (PRIBADI)';
+  const ref = personalDocRef(currentUser.uid);
+  unsubWorkspace = onSnapshot(ref, async snap => {
+   if (snap.exists()) {
+    db = { ...blankData(), ...snap.data() };
+   } else {
+    db = blankData();
+    await setDoc(ref, { ...db, updatedAt: Date.now() });
+   }
+   renderAll();
+  }, err => {
+   console.error('Personal workspace error:', err);
+   toast('Gagal memuat data ruang pribadi.');
+  });
+ } else {
+  const ref = groupDocRef(id);
+  unsubWorkspace = onSnapshot(ref, snap => {
+   if (!snap.exists()) {
+    toast('Grup tidak ditemukan.');
+    switchWorkspace('personal', 'personal');
+    return;
+   }
+   activeGroupDoc = { id: snap.id, ...snap.data() };
+   db = { ...blankData(), ...(activeGroupDoc.data || {}) };
+   $('#heroLabel').textContent = `TOTAL SALDO BERSAMA · ${activeGroupDoc.name.toUpperCase()}`;
+   renderGroupBanner();
+   renderAll();
+  }, err => {
+   console.error('Group workspace error:', err);
+   toast('Gagal memuat data grup bersama.');
+  });
+ }
+};
+
+function renderGroupBanner() {
+ if (activeWorkspace.type !== 'group' || !activeGroupDoc) {
+  $('#groupBanner').classList.add('hidden');
+  return;
+ }
+ $('#groupBanner').classList.remove('hidden');
+ $('#gbName').textContent = activeGroupDoc.name;
+ $('#gbDesc').textContent = activeGroupDoc.description || 'Keuangan bersama keluarga & teman';
+ $('#gbCode').textContent = activeGroupDoc.inviteCode || '-';
+ const members = activeGroupDoc.members || [];
+ $('#gbMemberCount').textContent = members.length;
+ const isAdmin = activeGroupDoc.ownerId === currentUser?.uid;
+ $('#gbRole').textContent = isAdmin ? 'Admin Grup' : 'Anggota';
+}
+
+async function save() {
+ renderAll();
+ if (!currentUser) return;
+ try {
+  $('#syncLabel').textContent = 'Menyimpan...';
+  if (activeWorkspace.type === 'personal') {
+   await setDoc(personalDocRef(currentUser.uid), {
+    ...db,
+    updatedAt: Date.now()
+   }, { merge: true });
+  } else if (activeWorkspace.type === 'group' && activeWorkspace.id) {
+   await updateDoc(groupDocRef(activeWorkspace.id), {
+    data: db,
+    updatedAt: Date.now()
+   });
+  }
+  $('#syncLabel').textContent = 'Cloud Real-Time Aktif';
+ } catch (err) {
+  console.error('Save error:', err);
+  $('#syncLabel').textContent = 'Gangguan Koneksi';
+  toast('Gagal menyinkronkan ke cloud. Periksa koneksi internet.');
+ }
+}
+
+function actorMeta() {
+ const name = userProfile?.name || currentUser?.displayName || (currentUser?.email ? currentUser.email.split('@')[0] : 'Anggota');
+ return {
+  createdByUid: currentUser?.uid || '',
+  createdByName: name,
+  createdByEmail: currentUser?.email || ''
+ };
+}
+
+function authorBadge(item) {
+ if (activeWorkspace.type !== 'group' || !item?.createdByName) return '';
+ return `<span class="authorbadge">Oleh: ${esc(item.createdByName)}</span>`;
+}
+
+function generateInviteCode() {
+ const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+ let code = 'RU-';
+ for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+ return code;
+}
+
+$('#createGroupForm').addEventListener('submit', async e => {
+ e.preventDefault();
+ if (!currentUser) return;
+ const d = formData(e.target);
+ const btn = $('#createGroupSubmitBtn');
+ btn.disabled = true;
+ btn.textContent = 'Membuat grup...';
+
+ try {
+  const existingSnap = await getDocs(groupsColRef());
+  const existingCodes = new Set(existingSnap.docs.map(doc => doc.data().inviteCode));
+  let inviteCode = generateInviteCode();
+  while (existingCodes.has(inviteCode)) {
+   inviteCode = generateInviteCode();
+  }
+
+  const gid = 'grp_' + genId();
+  const me = actorMeta();
+  const newGroup = {
+   id: gid,
+   name: d.name.trim(),
+   description: (d.description || '').trim(),
+   inviteCode,
+   ownerId: currentUser.uid,
+   members: [{
+    uid: currentUser.uid,
+    name: me.createdByName,
+    email: me.createdByEmail,
+    role: 'admin',
+    joinedAt: Date.now()
+   }],
+   memberIds: [currentUser.uid],
+   data: blankData(),
+   createdAt: Date.now(),
+   updatedAt: Date.now()
+  };
+
+  await setDoc(groupDocRef(gid), newGroup);
+
+  const curGroupIds = userProfile?.groupIds || [];
+  if (!curGroupIds.includes(gid)) {
+   await setDoc(profileDocRef(currentUser.uid), {
+    groupIds: [...curGroupIds, gid]
+   }, { merge: true });
+  }
+
+  e.target.reset();
+  closeModal('createGroupModal');
+  toast(`Grup "${newGroup.name}" berhasil dibuat! Kode: ${inviteCode}`);
+  switchWorkspace('group', gid);
+ } catch (err) {
+  console.error('Create group error:', err);
+  toast('Gagal membuat grup baru. Silakan coba lagi.');
+ } finally {
+  btn.disabled = false;
+  btn.textContent = '＋ Buat Grup & Kode Undangan';
+ }
+});
+
+$('#joinGroupForm').addEventListener('submit', async e => {
+ e.preventDefault();
+ if (!currentUser) return;
+ const d = formData(e.target);
+ const inputCode = d.inviteCode.trim().toUpperCase();
+ const btn = $('#joinGroupSubmitBtn');
+ btn.disabled = true;
+ btn.textContent = 'Mencari grup...';
+
+ try {
+  const snap = await getDocs(groupsColRef());
+  const foundDoc = snap.docs.find(doc => (doc.data().inviteCode || '').toUpperCase() === inputCode);
+
+  if (!foundDoc) {
+   toast(`Kode undangan "${inputCode}" tidak ditemukan. Periksa kembali kodenya.`);
+   return;
+  }
+
+  const grp = foundDoc.data();
+  const gid = foundDoc.id;
+  const memberIds = grp.memberIds || [];
+
+  if (memberIds.includes(currentUser.uid)) {
+   toast(`Anda sudah tergabung di grup "${grp.name}".`);
+   closeModal('joinGroupModal');
+   switchWorkspace('group', gid);
+   return;
+  }
+
+  const me = actorMeta();
+  const updatedMembers = [
+   ...(grp.members || []),
+   {
+    uid: currentUser.uid,
+    name: me.createdByName,
+    email: me.createdByEmail,
+    role: 'member',
+    joinedAt: Date.now()
+   }
+  ];
+
+  await updateDoc(groupDocRef(gid), {
+   members: updatedMembers,
+   memberIds: [...memberIds, currentUser.uid],
+   updatedAt: Date.now()
+  });
+
+  const curGroupIds = userProfile?.groupIds || [];
+  if (!curGroupIds.includes(gid)) {
+   await setDoc(profileDocRef(currentUser.uid), {
+    groupIds: [...curGroupIds, gid]
+   }, { merge: true });
+  }
+
+  e.target.reset();
+  closeModal('joinGroupModal');
+  toast(`Berhasil bergabung ke grup "${grp.name}"!`);
+  switchWorkspace('group', gid);
+ } catch (err) {
+  console.error('Join group error:', err);
+  toast('Gagal bergabung ke grup. Silakan coba lagi.');
+ } finally {
+  btn.disabled = false;
+  btn.textContent = '🔑 Gabung ke Grup';
+ }
+});
+
+window.copyInviteCode = function() {
+ const code = activeGroupDoc?.inviteCode;
+ if (!code) return;
+ const ta = document.createElement('textarea');
+ ta.value = code;
+ ta.style.position = 'fixed';
+ ta.style.opacity = '0';
+ document.body.appendChild(ta);
+ ta.select();
+ try {
+  document.execCommand('copy');
+  toast(`Kode undangan "${code}" berhasil disalin!`);
+ } catch (e) {
+  toast(`Kode undangan grup: ${code}`);
+ }
+ document.body.removeChild(ta);
+};
+
+window.openGroupMembersModal = function() {
+ if (!activeGroupDoc) return;
+ $('#gmTitle').textContent = `Anggota · ${activeGroupDoc.name}`;
+ $('#gmCode').textContent = activeGroupDoc.inviteCode;
+
+ const members = activeGroupDoc.members || [];
+ $('#gmMemberList').innerHTML = members.map(m => {
+  const init = (m.name || 'U').trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase();
+  const isAdm = m.uid === activeGroupDoc.ownerId || m.role === 'admin';
+  const isMe = m.uid === currentUser?.uid;
+  return `
+   <div class="memberrow">
+    <div class="row" style="min-width:0">
+     <div class="avatar" style="width:32px;height:32px;font-size:12px">${esc(init)}</div>
+     <div style="min-width:0">
+      <b style="font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(m.name)} ${isMe ? '(Anda)' : ''}</b>
+      <small class="muted" style="font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(m.email)}</small>
+     </div>
+    </div>
+    <span class="pill ${isAdm ? '' : 'blue'}">${isAdm ? 'Admin' : 'Anggota'}</span>
+   </div>
+  `;
+ }).join('');
+
+ const isAdmin = activeGroupDoc.ownerId === currentUser?.uid;
+ $('#gmActions').innerHTML = isAdmin
+  ? `<button type="button" class="btn danger smallbtn" onclick="deleteCurrentGroup()">Hapus Grup Permanen</button>`
+  : `<button type="button" class="btn danger smallbtn" onclick="leaveCurrentGroup()">Keluar dari Grup</button>`;
+
+ openModal('groupMembersModal');
+};
+
+window.leaveCurrentGroup = async function() {
+ if (!activeGroupDoc || !currentUser) return;
+ const ok = await askConfirm('Keluar dari Grup?', `Anda yakin ingin keluar dari grup "${activeGroupDoc.name}"? Anda memerlukan kode undangan jika ingin masuk kembali.`, 'Ya, Keluar');
+ if (!ok) return;
+
+ try {
+  const gid = activeGroupDoc.id;
+  const newMembers = (activeGroupDoc.members || []).filter(m => m.uid !== currentUser.uid);
+  const newMemberIds = (activeGroupDoc.memberIds || []).filter(id => id !== currentUser.uid);
+
+  await updateDoc(groupDocRef(gid), {
+   members: newMembers,
+   memberIds: newMemberIds,
+   updatedAt: Date.now()
+  });
+
+  const curGroupIds = (userProfile?.groupIds || []).filter(id => id !== gid);
+  await setDoc(profileDocRef(currentUser.uid), { groupIds: curGroupIds }, { merge: true });
+
+  closeModal('groupMembersModal');
+  toast('Anda telah keluar dari grup.');
+  switchWorkspace('personal', 'personal');
+ } catch (err) {
+  console.error('Leave group error:', err);
+  toast('Gagal keluar dari grup.');
+ }
+};
+
+window.deleteCurrentGroup = async function() {
+ if (!activeGroupDoc || !currentUser) return;
+ const ok = await askConfirm('Hapus Grup Permanen?', `Seluruh catatan tabungan, wishlist, dan tagihan di grup "${activeGroupDoc.name}" akan dihapus permanen untuk semua anggota. Lanjutkan?`, 'Hapus Grup');
+ if (!ok) return;
+
+ try {
+  const gid = activeGroupDoc.id;
+  await deleteDoc(groupDocRef(gid));
+  const curGroupIds = (userProfile?.groupIds || []).filter(id => id !== gid);
+  await setDoc(profileDocRef(currentUser.uid), { groupIds: curGroupIds }, { merge: true });
+
+  closeModal('groupMembersModal');
+  toast('Grup berhasil dihapus.');
+  switchWorkspace('personal', 'personal');
+ } catch (err) {
+  console.error('Delete group error:', err);
+  toast('Gagal menghapus grup.');
+ }
+};
+
+function navMarkup() {
+ const side = $('#sideNav'), mobile = $('#mobileNav');
+ side.innerHTML = menus.map(([k,i,n]) => `<button data-page="${k}" class="${k==='dashboard'?'active':''}"><span class="ico">${i}</span>${n}</button>`).join('');
+ mobile.innerHTML = menus.map(([k,i,n]) => `<button data-page="${k}" class="${k==='dashboard'?'active':''}"><span>${i}</span>${n==='Pengeluaran Bulanan'?'Tagihan':n==='Perencanaan'?'Rencana':n==='Dashboard'?'Home':n==='Uang Bebas'?'Jajan':n}</button>`).join('');
+}
+
+window.navigate = function(p) {
+ $$('.page').forEach(x => x.classList.toggle('active', x.id === 'page-'+p));
+ $$('[data-page]').forEach(x => x.classList.toggle('active', x.dataset.page === p));
+ $('#pageTitle').textContent = titles[p];
+ const spaceContext = activeWorkspace.type === 'group' && activeGroupDoc ? `Grup · ${activeGroupDoc.name}` : 'Keuangan pribadi';
+ $('#eyebrow').textContent = p === 'dashboard' ? `Ringkasan · ${spaceContext}` : spaceContext;
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ renderAll();
+};
+
+function setDefaults() {
+ $$('#incomeForm input[type=date],#expenseForm input[type=date],#freeIncomeForm input[type=date],#freeExpenseForm input[type=date]').forEach(x => x.value = todayISO());
+}
+
+function totals() {
+ let t = { utama: 0, darurat: 0 };
+ db.transactions.forEach(x => { t[x.kind] += x.type === 'in' ? x.amount : -x.amount; });
+ return t;
+}
+
+function monthSum(arr, type, key = monthKey()) {
+ return arr.filter(x => monthKey(x.date) === key && (!type || x.type === type)).reduce((s, x) => s + x.amount, 0);
+}
+
+function activeWishlist() {
+ return db.wishlist.filter(w => w.status !== 'bought');
+}
+
+function sortedWish() {
+ return activeWishlist().slice().sort((a, b) => a.price - b.price || a.created - b.created);
+}
+
+function planFor(w) {
+ let p = db.plans.find(x => x.wishId === w.id);
+ if (!p) {
+  p = { id: genId(), wishId: w.id, checks: {}, created: Date.now() };
+  db.plans.push(p);
+ }
+ return p;
+}
+
+function countChecks(p) {
+ return Object.values(p.checks || {}).filter(Boolean).length;
+}
+
+function planProgress(w) {
+ let p = planFor(w);
+ return countChecks(p) * w.daily;
+}
+
+function allSavings() {
+ return db.transactions.slice().sort((a, b) => b.date.localeCompare(a.date) || b.created - a.created);
+}
+
+function renderDashboard() {
+ const t = totals();
+ $('#dashTotal').textContent = money(t.utama + t.darurat);
+ $('#dashMain').textContent = money(t.utama);
+ $('#dashEmergency').textContent = money(t.darurat);
+
+ const k = monthKey();
+ $('#dashIn').textContent = money(monthSum(db.transactions, 'in', k));
+ $('#dashOut').textContent = money(monthSum(db.transactions, 'out', k));
+ $('#dashFree').textContent = money(monthSum(db.free, 'out', k));
+
+ const recent = allSavings().slice(0, 5);
+ $('#recentActivity').innerHTML = recent.length
+  ? `<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Nominal</th><th>Catatan</th></tr></thead><tbody>${recent.map(x => `<tr><td>${fmtDate(x.date)}</td><td>${x.kind==='utama'?'Tabungan Utama':'Dana Darurat'}</td><td class="${x.type==='in'?'amountplus':'amountminus'}">${x.type==='in'?'+':'−'}${money(x.amount)}</td><td>${esc(x.note||(x.type==='in'?'Setoran':'Pengeluaran'))}${authorBadge(x)}</td></tr>`).join('')}</tbody></table></div>`
+  : '<div class="empty"><span>◷</span>Belum ada aktivitas tabungan.</div>';
+
+ const ws = sortedWish().slice(0, 3);
+ $('#dashWishlist').innerHTML = ws.length
+  ? ws.map(w => `<div class="wishcard"><div><b>${esc(w.name)}</b>${authorBadge(w)}<div class="small muted">${money(w.price)} · ${w.months} bulan</div></div><span class="pill">${w.status==='ready'?'Siap dibeli':'On Going'}</span></div>`).join('')
+  : '<div class="empty">Belum ada wishlist.</div>';
+
+ const bills = db.bills.filter(b => b.frequency === 'monthly');
+ $('#dashBills').innerHTML = bills.length
+  ? bills.slice(0, 3).map(b => `<div class="row between" style="padding:7px 0"><span>${esc(b.name)}${authorBadge(b)}</span><b>${money(b.amount)}</b></div>`).join('')
+  : '<div class="empty">Belum ada tagihan rutin.</div>';
+}
+
+function renderSavings() {
+ const f = $('#historyFilter')?.value || 'all';
+ const rows = allSavings().filter(x => f === 'all' || x.type === f);
+ $('#savingsHistory').innerHTML = rows.length
+  ? `<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Kegunaan</th><th>Nominal</th><th>Jenis</th></tr></thead><tbody>${rows.map(x => `<tr><td>${fmtDate(x.date)}</td><td>${x.type==='in'?'Setoran tabungan':esc(x.note||'Pengeluaran')}${authorBadge(x)}</td><td class="${x.type==='in'?'amountplus':'amountminus'}">${x.type==='in'?'+':'−'}${money(x.amount)}</td><td>${x.kind==='utama'?'Tabungan Utama':'Dana Darurat'}</td></tr>`).join('')}</tbody></table></div>`
+  : '<div class="empty"><span>▤</span>Belum ada riwayat transaksi.</div>';
+}
+
+function renderWishlist() {
+ $('#wishList').innerHTML = db.wishlist.length
+  ? db.wishlist.slice().sort((a, b) => b.created - a.created).map(w => `<div class="wishcard"><div style="min-width:0"><b>${esc(w.name)}</b>${authorBadge(w)}<div class="small muted">${money(w.price)} · ${w.months} bulan (${w.days} hari)</div><div class="small" style="margin-top:4px">Target per hari: <b>${money(w.daily)}</b></div></div><div class="row" style="flex-shrink:0"><span class="pill ${w.status==='bought'?'gray':w.status==='ready'?'warn':''}">${w.status==='bought'?'Terbeli':w.status==='ready'?'Siap dibeli':'On Going'}</span>${w.status!=='bought'?`<button class="btn danger smallbtn" onclick="deleteWish('${w.id}')">Hapus</button>`:''}</div></div>`).join('')
+  : '<div class="card empty"><span>♡</span>Wishlist masih kosong. Tambahkan barang impianmu.</div>';
+}
+
+function syncStatuses() {
+ db.wishlist.forEach(w => {
+  if (w.status === 'bought') return;
+  planFor(w);
+  const total = planProgress(w);
+  w.status = total >= w.price ? 'ready' : 'ongoing';
+ });
+}
+
+function renderPlanner() {
+ syncStatuses();
+ const sorted = sortedWish(), active = sorted[0];
+ $('#planCount').textContent = sorted.length + ' target';
+
+ $('#priorityList').innerHTML = sorted.length
+  ? sorted.map((w, i) => `<div class="row between" style="padding:7px 0"><div class="row"><span class="pill ${i===0?'':'gray'}">${i===0?'Prioritas 1':'Prioritas '+(i+1)}</span><b>${esc(w.name)}</b>${authorBadge(w)}</div><span class="small muted">${money(w.price)}</span></div>`).join('')
+  : '<div class="empty">Tambahkan barang di Wishlist untuk membuat rencana.</div>';
+
+ $('#planList').innerHTML = sorted.length
+  ? sorted.map((w, i) => {
+   const p = planFor(w), n = countChecks(p), amt = planProgress(w);
+   return `<div class="planneritem ${selectedPlan===w.id?'selected':''}" onclick="selectPlan('${w.id}')"><div style="min-width:0"><div class="row" style="gap:6px;flex-wrap:wrap"><b>${esc(w.name)}</b>${i===0?'<span class="pill">Aktif</span>':''}</div><div class="small muted">${money(w.price)} · ${w.months} bulan · ${n}/${w.days} hari ditandai</div><div class="progress"><i style="width:${Math.min(100,amt/w.price*100)}%"></i></div></div><span class="pill ${w.status==='ready'?'warn':''}">${w.status==='ready'?'Selesai':'On Going'}</span></div>`;
+  }).join('')
+  : '<div class="empty">Belum ada target.</div>';
+
+ if (!selectedPlan || !db.wishlist.some(w => w.id === selectedPlan && w.status !== 'bought')) {
+  selectedPlan = active?.id || null;
+ }
+ renderPlanDetail();
+}
+
+window.selectPlan = function(id) {
+ selectedPlan = id;
+ renderPlanner();
+};
+
+function renderPlanDetail() {
+ const w = db.wishlist.find(x => x.id === selectedPlan);
+ if (!w) {
+  $('#planDetail').innerHTML = '<div class="empty"><span>▦</span>Pilih target tabungan untuk melihat kalender.</div>';
+  return;
+ }
+ const p = planFor(w), n = countChecks(p), sum = planProgress(w), diff = sum - w.price;
+ const months = Array.from({ length: w.months }, (_, i) => i + 1);
+
+ const monthHTML = months.map(m => {
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  return `<div style="margin-top:14px"><b style="font-size:12px">Bulan ke-${m}</b><div class="calendar">${days.map(d => {
+   const key = m + '-' + d;
+   const val = p.checks ? p.checks[key] : null;
+   const checked = !!val;
+   const valid = (m - 1) * 31 + d <= w.days;
+   const titleAttr = checked && typeof val === 'object' && val.byName ? ` title="Dicentang oleh ${esc(val.byName)}"` : '';
+   return `<button class="day ${checked?'checked':''}"${titleAttr} ${!valid||w.status==='bought'?'disabled':''} onclick="toggleDay('${w.id}','${key}')">${d}${checked?'<b>✓</b>':''}</button>`;
+  }).join('')}</div></div>`;
+ }).join('');
+
+ $('#planDetail').innerHTML = `
+  <div class="cardhead">
+   <div><div class="eyebrow">TARGET TABUNGAN</div><h3 style="font-size:18px;margin-top:3px">${esc(w.name)}${authorBadge(w)}</h3></div>
+   <span class="pill ${w.status==='ready'?'warn':''}">${w.status==='ready'?'Siap dibeli':'On Going'}</span>
+  </div>
+  <div class="twocol">
+   <div class="metric"><div class="small muted">Nominal per hari</div><div class="num">${money(w.daily)}</div></div>
+   <div class="metric"><div class="small muted">Periode</div><div class="num">${w.months} bulan</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:10px">
+   <div class="metric"><div class="small muted">Total terkumpul</div><div class="num">${money(sum)}</div></div>
+   <div class="metric"><div class="small muted">Harga barang</div><div class="num">${money(w.price)}</div></div>
+   <div class="metric"><div class="small muted">${diff>=0?'Kelebihan':'Kekurangan'}</div><div class="num" style="color:${diff>=0?'#238253':'#bd5555'}">${diff>=0?'+':'−'}${money(Math.abs(diff))}</div></div>
+  </div>
+  <div class="progress"><i style="width:${Math.min(100,sum/w.price*100)}%"></i></div>
+  <div class="small muted" style="margin-top:5px">${n} hari ditandai dari ${w.days} hari · ${Math.min(100,Math.round(sum/w.price*100))}% target</div>
+  <div class="row between" style="margin-top:19px"><b style="font-size:12px">Kalender menabung</b><span class="small muted">Tekan tanggal untuk checklist ✓</span></div>
+  ${monthHTML}
+  ${w.status==='ready'?`<div class="notice">Target sudah mencapai harga barang. Kamu bisa menandai barang ini sebagai terbeli.</div><button class="btn" style="margin-top:12px" onclick="markBought('${w.id}')">✓ Selesai — Tandai Terbeli</button>`:''}
+  ${w.status==='bought'?'<div class="notice">Barang ini sudah terbeli dan rencananya terkunci.</div>':''}
+ `;
+}
+
+window.toggleDay = function(wid, key) {
+ const w = db.wishlist.find(x => x.id === wid);
+ if (!w || w.status === 'bought') return;
+ const p = planFor(w);
+ if (!p.checks) p.checks = {};
+ if (p.checks[key]) {
+  delete p.checks[key];
+ } else {
+  const me = actorMeta();
+  p.checks[key] = { checked: true, byName: me.createdByName, at: Date.now() };
+ }
+ selectedPlan = wid;
+ save();
+};
+
+window.markBought = function(wid) {
+ const w = db.wishlist.find(x => x.id === wid);
+ if (!w) return;
+ if (planProgress(w) < w.price) {
+  toast('Target tabungan belum tercapai.');
+  return;
+ }
+ w.status = 'bought';
+ selectedPlan = null;
+ save();
+ toast('Selamat! Barang ditandai terbeli.');
+};
+
+window.deleteWish = async function(wid) {
+ const ok = await askConfirm('Hapus Wishlist?', 'Hapus wishlist ini beserta rencana tabungannya?');
+ if (!ok) return;
+ db.wishlist = db.wishlist.filter(w => w.id !== wid);
+ db.plans = db.plans.filter(p => p.wishId !== wid);
+ if (selectedPlan === wid) selectedPlan = null;
+ save();
+ toast('Wishlist dihapus.');
+};
+
+function renderBills() {
+ const recurring = db.bills.filter(b => b.frequency === 'monthly');
+ const estimate = recurring.reduce((s, b) => s + b.amount, 0);
+ const key = monthKey();
+ const paid = db.billPaid.filter(x => x.month === key).reduce((s, x) => s + x.amount, 0);
+
+ $('#billEstimate').textContent = money(estimate);
+ $('#billPaid').textContent = money(paid);
+ $('#billRemain').textContent = money(Math.max(0, estimate - paid));
+
+ $('#billList').innerHTML = db.bills.length
+  ? `<div class="tablewrap"><table><thead><tr><th>Nama</th><th>Estimasi</th><th>Periode</th><th>Jatuh tempo</th><th>Status bulan ini</th><th>Aksi</th></tr></thead><tbody>${db.bills.map(b => {
+   const paidItem = db.billPaid.find(x => x.billId === b.id && x.month === key);
+   const done = !!paidItem;
+   return `<tr><td><b>${esc(b.name)}</b>${authorBadge(b)}</td><td>${money(b.amount)}</td><td>${b.frequency==='monthly'?'Bulanan':'Sekali'}</td><td>${b.due||'-'}</td><td>${done?`<span class="pill">Dibayar</span>${authorBadge(paidItem)}`:'<span class="pill warn">Belum dibayar</span>'}</td><td><button class="btn smallbtn ${done?'ghost':'secondary'}" onclick="toggleBill('${b.id}')">${done?'Batalkan':'Tandai dibayar'}</button> <button class="btn danger smallbtn" onclick="deleteBill('${b.id}')">Hapus</button></td></tr>`;
+  }).join('')}</tbody></table></div>`
+  : '<div class="empty">Belum ada catatan pengeluaran bulanan.</div>';
+}
+
+window.toggleBill = function(bid) {
+ const b = db.bills.find(x => x.id === bid);
+ if (!b) return;
+ const key = monthKey();
+ const idx = db.billPaid.findIndex(x => x.billId === bid && x.month === key);
+ if (idx >= 0) {
+  db.billPaid.splice(idx, 1);
+ } else {
+  db.billPaid.push({ id: genId(), billId: bid, month: key, amount: b.amount, ...actorMeta() });
+ }
+ save();
+};
+
+window.deleteBill = async function(bid) {
+ const ok = await askConfirm('Hapus Tagihan?', 'Hapus catatan pengeluaran bulanan ini?');
+ if (!ok) return;
+ db.bills = db.bills.filter(x => x.id !== bid);
+ db.billPaid = db.billPaid.filter(x => x.billId !== bid);
+ save();
+ toast('Catatan pengeluaran dihapus.');
+};
+
+function renderFree() {
+ const k = monthKey(), inc = monthSum(db.free, 'in', k), out = monthSum(db.free, 'out', k);
+ $('#freeBalance').textContent = money(inc - out);
+ $('#freeSpent').textContent = money(out);
+ const rows = db.free.slice().sort((a, b) => b.date.localeCompare(a.date));
+ $('#freeHistory').innerHTML = rows.length
+  ? `<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>${rows.map(x => `<tr><td>${fmtDate(x.date)}</td><td>${esc(x.note)}${authorBadge(x)}</td><td>${x.type==='in'?'Pemasukan':'Pengeluaran'}</td><td class="${x.type==='in'?'amountplus':'amountminus'}">${x.type==='in'?'+':'−'}${money(x.amount)}</td></tr>`).join('')}</tbody></table></div>`
+  : '<div class="empty">Belum ada catatan uang bebas.</div>';
+}
+
+function fillReportSelectors() {
+ const now = new Date(), m = $('#reportMonth'), y = $('#reportYear');
+ m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
+ m.value = now.getMonth() + 1;
+ const years = [...new Set([now.getFullYear(), ...db.transactions.map(x => +x.date.slice(0,4)), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
+ y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
+ y.value = now.getFullYear();
+}
+
+function renderReports() {
+ const m = String($('#reportMonth').value || new Date().getMonth() + 1).padStart(2, '0');
+ const y = $('#reportYear').value || new Date().getFullYear();
+ const key = y + '-' + m;
+ const tx = db.transactions.filter(x => monthKey(x.date) === key);
+ const ins = tx.filter(x => x.type === 'in').reduce((s, x) => s + x.amount, 0);
+ const outs = tx.filter(x => x.type === 'out').reduce((s, x) => s + x.amount, 0);
+ const fIn = monthSum(db.free, 'in', key);
+ const fOut = monthSum(db.free, 'out', key);
+ const bills = db.billPaid.filter(x => x.month === key).reduce((s, x) => s + x.amount, 0);
+ const t = totals();
+
+ $('#repMain').textContent = money(t.utama);
+ $('#repEmergency').textContent = money(t.darurat);
+ $('#repIn').textContent = money(ins);
+ $('#repOut').textContent = money(outs);
+ $('#repFreeIn').textContent = money(fIn);
+ $('#repFreeOut').textContent = money(fOut);
+ $('#repBills').textContent = money(bills);
+
+ const max = Math.max(ins, outs, 1);
+ $('#reportChart').innerHTML = `<div class="chartbars"><div class="barcol"><div class="barvalue">${money(ins)}</div><div class="bar" style="height:${Math.max(2,ins/max*95)}%"></div><div class="barlabel">Pemasukan</div></div><div class="barcol"><div class="barvalue">${money(outs)}</div><div class="bar" style="height:${Math.max(2,outs/max*95)}%;background:#d58b82"></div><div class="barlabel">Pengeluaran</div></div></div><div class="small muted" style="margin-top:10px">Periode ${monthNames[+m-1]} ${y}</div>`;
+
+ const mainOut = tx.filter(x => x.type === 'out' && x.kind === 'utama').reduce((s, x) => s + x.amount, 0);
+ const emOut = tx.filter(x => x.type === 'out' && x.kind === 'darurat').reduce((s, x) => s + x.amount, 0);
+ $('#reportBreakdown').innerHTML = `
+  <div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)"><span class="muted">Pengeluaran Tabungan Utama</span><b>${money(mainOut)}</b></div>
+  <div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line)"><span class="muted">Pengeluaran Dana Darurat</span><b>${money(emOut)}</b></div>
+  <div class="row between" style="padding:10px 0"><span class="muted">Pengeluaran uang bebas</span><b>${money(fOut)}</b></div>
+ `;
+}
+
+function renderAll() {
+ syncStatuses();
+ renderDashboard();
+ renderSavings();
+ renderWishlist();
+ renderPlanner();
+ renderBills();
+ renderFree();
+ if ($('#reportMonth').options.length === 0) fillReportSelectors();
+ renderReports();
+}
+
+navMarkup();
+$('#today').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+setDefaults();
+fillReportSelectors();
+
+$$('[data-page]').forEach(b => b.addEventListener('click', () => navigate(b.dataset.page)));
+$$('[data-tab]').forEach(b => b.addEventListener('click', () => {
+ const group = b.closest('.page');
+ group.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('active', x === b));
+ group.querySelectorAll('.tabpane').forEach(x => x.classList.toggle('hidden', x.id !== b.dataset.tab));
+}));
+
+$('#incomeForm').addEventListener('submit', e => {
+ e.preventDefault();
+ const d = formData(e.target);
+ db.transactions.push({ id: genId(), type: 'in', kind: d.kind, date: d.date, amount: +d.amount, note: 'Setoran tabungan', created: Date.now(), ...actorMeta() });
+ e.target.reset();
+ setDefaults();
+ save();
+ toast('Pemasukan tabungan berhasil dicatat.');
+});
+
+$('#expenseForm').addEventListener('submit', e => {
+ e.preventDefault();
+ const d = formData(e.target), t = totals();
+ if (+d.amount > t[d.kind]) {
+  toast('Saldo tidak mencukupi untuk pengeluaran ini.');
+  return;
+ }
+ db.transactions.push({ id: genId(), type: 'out', kind: d.kind, date: d.date, amount: +d.amount, note: d.note, created: Date.now(), ...actorMeta() });
+ e.target.reset();
+ setDefaults();
+ save();
+ toast('Pengeluaran berhasil dicatat.');
+});
+
+$('#historyFilter').addEventListener('change', renderSavings);
+
+$('#wishForm').addEventListener('submit', e => {
+ e.preventDefault();
+ const d = formData(e.target), months = +d.months, days = months * 31;
+ db.wishlist.push({ id: genId(), name: d.name.trim(), price: +d.price, months, days, daily: ceil500(+d.price / days), status: 'ongoing', created: Date.now(), ...actorMeta() });
+ e.target.reset();
+ save();
+ toast('Wishlist dan rencana tabungan dibuat.');
+});
+
+$('#billForm').addEventListener('submit', e => {
+ e.preventDefault();
+ const d = formData(e.target);
+ db.bills.push({ id: genId(), name: d.name.trim(), amount: +d.amount, frequency: d.frequency, due: d.due ? +d.due : null, created: Date.now(), ...actorMeta() });
+ e.target.reset();
+ save();
+ toast('Pengeluaran bulanan disimpan.');
+});
+
+$('#freeIncomeForm').addEventListener('submit', e => {
+ e.preventDefault();
+ const d = formData(e.target);
+ db.free.push({ id: genId(), type: 'in', date: d.date, amount: +d.amount, note: d.note, created: Date.now(), ...actorMeta() });
+ e.target.reset();
+ setDefaults();
+ save();
+ toast('Pemasukan uang bebas dicatat.');
+});
+
+$('#freeExpenseForm').addEventListener('submit', e => {
+ e.preventDefault();
+ const d = formData(e.target);
+ const bal = monthSum(db.free, 'in', monthKey(d.date)) - monthSum(db.free, 'out', monthKey(d.date));
+ if (+d.amount > bal) {
+  toast('Pemasukan uang bebas bulan ini belum mencukupi.');
+  return;
+ }
+ db.free.push({ id: genId(), type: 'out', date: d.date, amount: +d.amount, note: d.note, created: Date.now(), ...actorMeta() });
+ e.target.reset();
+ setDefaults();
+ save();
+ toast('Pengeluaran uang bebas dicatat.');
+});
+
+$('#reportMonth').addEventListener('change', renderReports);
+$('#reportYear').addEventListener('change', renderReports);
+
+// --- PROFILE SETTINGS MODAL ---
+window.openProfileModal = function() {
+ if (!currentUser) return;
+ const isGoogle = currentUser.providerData.some(p => p.providerId === 'google.com');
+ $('#profileNameInput').value = userProfile?.name || currentUser.displayName || '';
+
+ if (isGoogle) {
+  $('#emailPassSection').classList.add('hidden');
+  $('#profileEmailInput').removeAttribute('required');
+  $('#googleAuthNotice').classList.remove('hidden');
+ } else {
+  $('#emailPassSection').classList.remove('hidden');
+  $('#profileEmailInput').setAttribute('required', 'true');
+  $('#googleAuthNotice').classList.add('hidden');
+  $('#profileEmailInput').value = currentUser.email || '';
+  $('#profileNewPasswordInput').value = '';
+  $('#profileCurrentPasswordInput').value = '';
+ }
+ openModal('profileSettingsModal');
+};
+
+$('#profileSettingsForm').addEventListener('submit', async e => {
+ e.preventDefault();
+ if (!currentUser) return;
+ const d = formData(e.target);
+ const btn = $('#profileSubmitBtn');
+ const isGoogle = currentUser.providerData.some(p => p.providerId === 'google.com');
+
+ btn.disabled = true;
+ btn.textContent = 'Menyimpan...';
+
+ try {
+  let nameChanged = d.name.trim() !== (userProfile?.name || currentUser.displayName);
+  if (nameChanged) {
+   await updateProfile(currentUser, { displayName: d.name.trim() });
+   await updateDoc(profileDocRef(currentUser.uid), { name: d.name.trim() });
+   if (userProfile) userProfile.name = d.name.trim();
+   renderUserUI();
+  }
+
+  if (!isGoogle) {
+   const emailChanged = d.email.trim() !== currentUser.email;
+   const passwordChanged = !!d.newPassword.trim();
+
+   if (emailChanged || passwordChanged) {
+    if (!d.currentPassword) {
+     throw new Error("auth/requires-recent-login-custom");
+    }
+    
+    const credential = EmailAuthProvider.credential(currentUser.email, d.currentPassword);
+    await reauthenticateWithCredential(currentUser, credential);
+
+    if (emailChanged) {
+     await updateEmail(currentUser, d.email.trim());
+     await updateDoc(profileDocRef(currentUser.uid), { email: d.email.trim() });
+    }
+    if (passwordChanged) {
+     await updatePassword(currentUser, d.newPassword.trim());
+    }
+   }
+  }
+
+  toast('Profil berhasil diperbarui!');
+  closeModal('profileSettingsModal');
+ } catch (err) {
+  console.error('Profile update error:', err);
+  if (err.message === "auth/requires-recent-login-custom" || err.code === 'auth/missing-password' || err.code === 'auth/invalid-credential') {
+   toast('Gagal: Kata sandi saat ini salah atau wajib diisi.');
+  } else if (err.code === 'auth/email-already-in-use') {
+   toast('Gagal: Email sudah digunakan oleh akun lain.');
+  } else {
+   toast('Gagal memperbarui profil: ' + (err.code || err.message));
+  }
+ } finally {
+  btn.disabled = false;
+  btn.textContent = 'Simpan Perubahan';
+ }
+});
+</script>
+</body>
+</html>
