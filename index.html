@@ -286,7 +286,7 @@ tr:last-child td{border-bottom:0}
    <span>Masuk dengan Google</span>
   </button>
 
-  <div class="authfoot">Data pribadi terisolasi aman per akun email dan tersinkron real-time.</div>
+  <div class="authfoot">Data pribadi terisolasi aman per email dan tersinkron real-time.</div>
  </div>
 </div>
 
@@ -437,13 +437,20 @@ tr:last-child td{border-bottom:0}
 
  <!-- PAGE 5: PENGELUARAN BULANAN -->
  <section class="page" id="page-monthly">
-  <div class="card"><div class="cardhead"><h3>Catat pengeluaran bulanan</h3><span class="pill warn">Tagihan & estimasi</span></div>
-   <form id="billForm"><div class="formgrid">
-    <div class="field"><label>Nama pengeluaran / tagihan</label><input name="name" placeholder="Contoh: WiFi, listrik, cicilan HP" required></div>
-    <div class="field"><label>Nominal estimasi (Rp)</label><input name="amount" type="number" min="1" placeholder="350000" required></div>
-    <div class="field"><label>Periode</label><select name="frequency"><option value="monthly">Setiap bulan</option><option value="once">Sekali saja</option></select></div>
-    <div class="field"><label>Tanggal jatuh tempo (opsional)</label><input name="due" type="number" min="1" max="31" placeholder="Contoh: 10"></div>
-   </div><div class="formactions"><button class="btn">＋ Simpan pengeluaran</button></div></form>
+  <div class="card"><div class="cardhead"><h3 id="billFormTitle">Catat pengeluaran bulanan</h3><span class="pill warn">Tagihan & estimasi</span></div>
+   <form id="billForm">
+    <input type="hidden" name="billId" id="editBillId" value="">
+    <div class="formgrid">
+     <div class="field"><label>Nama pengeluaran / tagihan</label><input name="name" id="billNameInput" placeholder="Contoh: WiFi, listrik, cicilan HP" required></div>
+     <div class="field"><label>Nominal estimasi (Rp)</label><input name="amount" id="billAmountInput" type="number" min="1" placeholder="350000" required></div>
+     <div class="field"><label>Periode</label><select name="frequency" id="billFreqSelect"><option value="monthly">Setiap bulan</option><option value="once">Sekali saja</option></select></div>
+     <div class="field"><label>Tanggal jatuh tempo (opsional)</label><input name="due" id="billDueInput" type="number" min="1" max="31" placeholder="Contoh: 10"></div>
+    </div>
+    <div class="formactions">
+     <button type="submit" class="btn" id="billSubmitBtn">＋ Simpan pengeluaran</button>
+     <button type="button" class="btn ghost hidden" id="billCancelEditBtn" onclick="cancelEditBill()">Batal Edit</button>
+    </div>
+   </form>
   </div>
   <div class="grid g3" style="margin-top:15px">
    <div class="card"><div class="muted small">Estimasi rutin per bulan</div><div class="money" id="billEstimate">Rp0</div></div>
@@ -455,16 +462,21 @@ tr:last-child td{border-bottom:0}
 
  <!-- PAGE 6: UANG BEBAS / JAJAN -->
  <section class="page" id="page-free">
-  <div class="grid g2">
-   <div class="card"><div class="muted small">Sisa uang bebas bulan ini</div><div class="money" id="freeBalance">Rp0</div><div class="small muted">Pemasukan uang bebas dikurangi pengeluaran</div></div>
-   <div class="card"><div class="muted small">Total jajan bulan ini</div><div class="money amountminus" id="freeSpent">Rp0</div><div class="small muted">Akumulasi pengeluaran uang bebas</div></div>
+  <div class="row between" style="margin-bottom:14px;flex-wrap:wrap">
+   <div><h3 style="margin:0">Uang Bebas / Jajan</h3><div class="muted small">Pilih bulan & tahun untuk melihat total & rincian</div></div>
+   <div class="monthbar"><select id="freeMonth"></select><select id="freeYear"></select></div>
+  </div>
+  <div class="grid g3">
+   <div class="card"><div class="muted small">Pemasukan uang bebas (Bulan ini)</div><div class="money amountplus" id="freeMonthIn">Rp0</div></div>
+   <div class="card"><div class="muted small">Pengeluaran / jajan (Bulan ini)</div><div class="money amountminus" id="freeMonthOut">Rp0</div></div>
+   <div class="card"><div class="muted small">Sisa saldo uang bebas</div><div class="money" id="freeBalance">Rp0</div></div>
   </div>
   <div class="card" style="margin-top:15px"><div class="cardhead"><h3>Catat uang bebas</h3><span class="pill">Pemasukan / Pengeluaran</span></div>
    <div class="tabs"><button class="active" data-tab="free-in">Pemasukan</button><button data-tab="free-out">Pengeluaran</button></div>
    <div id="free-in" class="tabpane"><form id="freeIncomeForm"><div class="formgrid"><div class="field"><label>Tanggal</label><input type="date" name="date" required></div><div class="field"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" required placeholder="100000"></div><div class="field full"><label>Sumber uang</label><input name="note" placeholder="Contoh: Uang mingguan / bonus" required></div></div><div class="formactions"><button class="btn">＋ Tambah pemasukan</button></div></form></div>
    <div id="free-out" class="tabpane hidden"><form id="freeExpenseForm"><div class="formgrid"><div class="field"><label>Tanggal</label><input type="date" name="date" required></div><div class="field"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" required placeholder="25000"></div><div class="field full"><label>Keperluan / jajan</label><input name="note" placeholder="Contoh: Kopi dan makan siang" required></div></div><div class="formactions"><button class="btn">− Catat pengeluaran</button></div></form></div>
   </div>
-  <h3 class="sectiontitle">Riwayat uang bebas</h3><div class="card"><div id="freeHistory"></div></div>
+  <h3 class="sectiontitle">Riwayat uang bebas (Bulan terpilih)</h3><div class="card"><div id="freeHistory"></div></div>
  </section>
 
  <!-- PAGE 7: LAPORAN KEUANGAN -->
@@ -657,8 +669,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const fs = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
-
-// FIX: Variabel ini sebelumnya HILANG dan menyebabkan semua fitur database/Grup error diam-diam!
 const appId = firebaseConfig.appId; 
 
 // --- HELPERS & CONSTANTS ---
@@ -823,7 +833,7 @@ window.handleLogout = async function() {
  }
 };
 
-// --- FIRESTORE PATHS (STRICT COMPLIANCE) ---
+// --- FIRESTORE PATHS ---
 const personalDocRef = uid => doc(fs, 'artifacts', appId, 'users', uid, 'workspaces', 'personal');
 const profileDocRef = uid => doc(fs, 'artifacts', appId, 'users', uid, 'profile', 'info');
 const groupDocRef = gid => doc(fs, 'artifacts', appId, 'public', 'data', 'groups', gid);
@@ -1587,7 +1597,7 @@ function renderBills() {
   ? `<div class="tablewrap"><table><thead><tr><th>Nama</th><th>Estimasi</th><th>Periode</th><th>Jatuh tempo</th><th>Status bulan ini</th><th>Aksi</th></tr></thead><tbody>${db.bills.map(b => {
    const paidItem = db.billPaid.find(x => x.billId === b.id && x.month === key);
    const done = !!paidItem;
-   return `<tr><td><b>${esc(b.name)}</b>${authorBadge(b)}</td><td>${money(b.amount)}</td><td>${b.frequency==='monthly'?'Bulanan':'Sekali'}</td><td>${b.due||'-'}</td><td>${done?`<span class="pill">Dibayar</span>${authorBadge(paidItem)}`:'<span class="pill warn">Belum dibayar</span>'}</td><td><button class="btn smallbtn ${done?'ghost':'secondary'}" onclick="toggleBill('${b.id}')">${done?'Batalkan':'Tandai dibayar'}</button> <button class="btn danger smallbtn" onclick="deleteBill('${b.id}')">Hapus</button></td></tr>`;
+   return `<tr><td><b>${esc(b.name)}</b>${authorBadge(b)}</td><td>${money(b.amount)}</td><td>${b.frequency==='monthly'?'Bulanan':'Sekali'}</td><td>${b.due||'-'}</td><td>${done?`<span class="pill">Dibayar</span>${authorBadge(paidItem)}`:'<span class="pill warn">Belum dibayar</span>'}</td><td><button class="btn smallbtn secondary" onclick="editBill('${b.id}')">Ubah</button> <button class="btn smallbtn ${done?'ghost':'secondary'}" onclick="toggleBill('${b.id}')">${done?'Batalkan':'Tandai dibayar'}</button> <button class="btn danger smallbtn" onclick="deleteBill('${b.id}')">Hapus</button></td></tr>`;
   }).join('')}</tbody></table></div>`
   : '<div class="empty">Belum ada catatan pengeluaran bulanan.</div>';
 }
@@ -1605,35 +1615,88 @@ window.toggleBill = function(bid) {
  save();
 };
 
+window.editBill = function(bid) {
+ const b = db.bills.find(x => x.id === bid);
+ if (!b) return;
+ $('#editBillId').value = b.id;
+ $('#billNameInput').value = b.name;
+ $('#billAmountInput').value = b.amount;
+ $('#billFreqSelect').value = b.frequency;
+ $('#billDueInput').value = b.due || '';
+ $('#billFormTitle').textContent = 'Ubah Pengeluaran Bulanan';
+ $('#billSubmitBtn').textContent = 'Simpan Perubahan';
+ $('#billCancelEditBtn').classList.remove('hidden');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.cancelEditBill = function() {
+ $('#editBillId').value = '';
+ $('#billForm').reset();
+ $('#billFormTitle').textContent = 'Catat pengeluaran bulanan';
+ $('#billSubmitBtn').textContent = '＋ Simpan pengeluaran';
+ $('#billCancelEditBtn').classList.add('hidden');
+};
+
 window.deleteBill = async function(bid) {
  const ok = await askConfirm('Hapus Tagihan?', 'Hapus catatan pengeluaran bulanan ini?');
  if (!ok) return;
  db.bills = db.bills.filter(x => x.id !== bid);
  db.billPaid = db.billPaid.filter(x => x.billId !== bid);
+ cancelEditBill();
  save();
  toast('Catatan pengeluaran dihapus.');
 };
 
+window.deleteFree = async function(fid) {
+ const ok = await askConfirm('Hapus Catatan Jajan?', 'Apakah Anda yakin ingin menghapus riwayat pemasukan/pengeluaran ini? Saldo jajan akan disesuaikan kembali.', 'Ya, Hapus');
+ if (!ok) return;
+ db.free = db.free.filter(x => x.id !== fid);
+ save();
+ toast('Catatan uang bebas berhasil dihapus.');
+};
+
+function fillFreeSelectors() {
+ const now = new Date(), m = $('#freeMonth'), y = $('#freeYear');
+ if (m.options.length === 0) {
+  m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
+  m.value = now.getMonth() + 1;
+  const years = [...new Set([now.getFullYear(), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
+  y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
+  y.value = now.getFullYear();
+ }
+}
+
 function renderFree() {
- const k = monthKey(), inc = monthSum(db.free, 'in', k), out = monthSum(db.free, 'out', k);
+ fillFreeSelectors();
+ const m = String($('#freeMonth').value || new Date().getMonth() + 1).padStart(2, '0');
+ const y = $('#freeYear').value || new Date().getFullYear();
+ const key = y + '-' + m;
+
+ const inc = monthSum(db.free, 'in', key);
+ const out = monthSum(db.free, 'out', key);
+ $('#freeMonthIn').textContent = money(inc);
+ $('#freeMonthOut').textContent = money(out);
  $('#freeBalance').textContent = money(inc - out);
- $('#freeSpent').textContent = money(out);
- const rows = db.free.slice().sort((a, b) => b.date.localeCompare(a.date));
+
+ const rows = db.free.filter(x => monthKey(x.date) === key).slice().sort((a, b) => b.date.localeCompare(a.date));
  $('#freeHistory').innerHTML = rows.length
-  ? `<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th></tr></thead><tbody>${rows.map(x => `<tr><td>${fmtDate(x.date)}</td><td>${esc(x.note)}${authorBadge(x)}</td><td>${x.type==='in'?'Pemasukan':'Pengeluaran'}</td><td class="${x.type==='in'?'amountplus':'amountminus'}">${x.type==='in'?'+':'−'}${money(x.amount)}</td></tr>`).join('')}</tbody></table></div>`
-  : '<div class="empty">Belum ada catatan uang bebas.</div>';
+  ? `<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody>${rows.map(x => `<tr><td>${fmtDate(x.date)}</td><td>${esc(x.note)}${authorBadge(x)}</td><td>${x.type==='in'?'Pemasukan':'Pengeluaran'}</td><td class="${x.type==='in'?'amountplus':'amountminus'}">${x.type==='in'?'+':'−'}${money(x.amount)}</td><td><button class="btn danger smallbtn" onclick="deleteFree('${x.id}')">Hapus</button></td></tr>`).join('')}</tbody></table></div>`
+  : '<div class="empty">Belum ada catatan uang bebas pada bulan ini.</div>';
 }
 
 function fillReportSelectors() {
  const now = new Date(), m = $('#reportMonth'), y = $('#reportYear');
- m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
- m.value = now.getMonth() + 1;
- const years = [...new Set([now.getFullYear(), ...db.transactions.map(x => +x.date.slice(0,4)), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
- y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
- y.value = now.getFullYear();
+ if (m.options.length === 0) {
+  m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
+  m.value = now.getMonth() + 1;
+  const years = [...new Set([now.getFullYear(), ...db.transactions.map(x => +x.date.slice(0,4)), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
+  y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
+  y.value = now.getFullYear();
+ }
 }
 
 function renderReports() {
+ fillReportSelectors();
  const m = String($('#reportMonth').value || new Date().getMonth() + 1).padStart(2, '0');
  const y = $('#reportYear').value || new Date().getFullYear();
  const key = y + '-' + m;
@@ -1673,13 +1736,13 @@ function renderAll() {
  renderPlanner();
  renderBills();
  renderFree();
- if ($('#reportMonth').options.length === 0) fillReportSelectors();
  renderReports();
 }
 
 navMarkup();
 $('#today').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 setDefaults();
+fillFreeSelectors();
 fillReportSelectors();
 
 $$('[data-page]').forEach(b => b.addEventListener('click', () => navigate(b.dataset.page)));
@@ -1727,10 +1790,23 @@ $('#wishForm').addEventListener('submit', e => {
 $('#billForm').addEventListener('submit', e => {
  e.preventDefault();
  const d = formData(e.target);
- db.bills.push({ id: genId(), name: d.name.trim(), amount: +d.amount, frequency: d.frequency, due: d.due ? +d.due : null, created: Date.now(), ...actorMeta() });
- e.target.reset();
+ const bid = $('#editBillId').value;
+ if (bid) {
+  const b = db.bills.find(x => x.id === bid);
+  if (b) {
+   b.name = d.name.trim();
+   b.amount = +d.amount;
+   b.frequency = d.frequency;
+   b.due = d.due ? +d.due : null;
+   toast('Pengeluaran bulanan berhasil diperbarui.');
+  }
+  cancelEditBill();
+ } else {
+  db.bills.push({ id: genId(), name: d.name.trim(), amount: +d.amount, frequency: d.frequency, due: d.due ? +d.due : null, created: Date.now(), ...actorMeta() });
+  e.target.reset();
+  toast('Pengeluaran bulanan disimpan.');
+ }
  save();
- toast('Pengeluaran bulanan disimpan.');
 });
 
 $('#freeIncomeForm').addEventListener('submit', e => {
@@ -1758,6 +1834,8 @@ $('#freeExpenseForm').addEventListener('submit', e => {
  toast('Pengeluaran uang bebas dicatat.');
 });
 
+$('#freeMonth').addEventListener('change', renderFree);
+$('#freeYear').addEventListener('change', renderFree);
 $('#reportMonth').addEventListener('change', renderReports);
 $('#reportYear').addEventListener('change', renderReports);
 
