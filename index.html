@@ -1660,7 +1660,11 @@ function fillFreeSelectors() {
  if (m.options.length === 0) {
   m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
   m.value = now.getMonth() + 1;
-  const years = [...new Set([now.getFullYear(), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
+  const currentYear = now.getFullYear();
+  const years = [...new Set([
+   ...Array.from({ length: Math.max(0, currentYear + 10 - 2026 + 1) }, (_, i) => 2026 + i),
+   ...db.free.map(x => +x.date.slice(0,4))
+  ])].sort((a, b) => b - a);
   y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
   y.value = now.getFullYear();
  }
