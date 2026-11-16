@@ -1656,10 +1656,13 @@ window.deleteFree = async function(fid) {
 };
 
 function fillFreeSelectors() {
+ function fillFreeSelectors() {
  const now = new Date(), m = $('#freeMonth'), y = $('#freeYear');
  if (m.options.length === 0) {
   m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
   m.value = now.getMonth() + 1;
+  
+  // BAGIAN INI YANG MENGATUR PILIHAN TAHUN:
   const years = [...new Set([now.getFullYear(), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
   y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
   y.value = now.getFullYear();
