@@ -1684,38 +1684,15 @@ function renderFree() {
   : '<div class="empty">Belum ada catatan uang bebas pada bulan ini.</div>';
 }
 
-function fillFreeSelectors() {
- const now = new Date(), m = $('#freeMonth'), y = $('#freeYear');
- const curYear = now.getFullYear();
- 
- // Otomatis buat daftar tahun dari tahun sekarang sampai 6 tahun ke depan
- const futureYears = Array.from({ length: 7 }, (_, i) => curYear + i);
- const allYears = [...new Set([...futureYears, ...db.free.map(x => +x.date.slice(0, 4))])].sort((a, b) => b - a);
- 
- const prevVal = y.value || curYear;
- if (m.options.length === 0) {
-  m.innerHTML = monthNames.map((n, i) => `<option value="${i + 1}">${n}</option>`).join('');
-  m.value = now.getMonth() + 1;
- }
- y.innerHTML = allYears.map(v => `<option value="${v}">${v}</option>`).join('');
- y.value = allYears.includes(+prevVal) ? prevVal : curYear;
-}
-
 function fillReportSelectors() {
- const now = new Date(), m = $('#reportMonth'), y = $('#reportYear');
- const curYear = now.getFullYear();
- 
- // Otomatis buat daftar tahun dari tahun sekarang sampai 6 tahun ke depan
- const futureYears = Array.from({ length: 7 }, (_, i) => curYear + i);
- const allYears = [...new Set([...futureYears, ...db.transactions.map(x => +x.date.slice(0, 4)), ...db.free.map(x => +x.date.slice(0, 4))])].sort((a, b) => b - a);
- 
- const prevVal = y.value || curYear;
- if (m.options.length === 0) {
-  m.innerHTML = monthNames.map((n, i) => `<option value="${i + 1}">${n}</option>`).join('');
-  m.value = now.getMonth() + 1;
- }
- y.innerHTML = allYears.map(v => `<option value="${v}">${v}</option>`).join('');
- y.value = allYears.includes(+prevVal) ? prevVal : curYear;
+ const now = new Date(), m = $('#reportMonth'), y = $('#reportYear');
+ if (m.options.length === 0) {
+  m.innerHTML = monthNames.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
+  m.value = now.getMonth() + 1;
+  const years = [...new Set([now.getFullYear(), ...db.transactions.map(x => +x.date.slice(0,4)), ...db.free.map(x => +x.date.slice(0,4))])].sort((a, b) => b - a);
+  y.innerHTML = years.map(v => `<option>${v}</option>`).join('');
+  y.value = now.getFullYear();
+ }
 }
 
 function renderReports() {
